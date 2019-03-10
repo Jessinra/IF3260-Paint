@@ -1,0 +1,23 @@
+nplanes
+
+nlines colorPlane Priority offsetX offsetY
+//iterate as much as nlines
+XStart YStart ColorStart XEnd YEnd ColorEnd
+XStart YStart ColorStart XEnd YEnd ColorEnd
+XStart YStart ColorStart XEnd YEnd ColorEnd
+XStart YStart ColorStart XEnd YEnd ColorEnd
+
+contoh:
+membuat 2 persegi
+
+2
+4 0xdddddd 1 000 000
+000 000 0x58b231 000 050 0x58b231
+000 050 0x58b231 050 050 0x58b231
+050 050 0x58b231 050 000 0x58b231
+050 000 0x58b231 000 000 0x58b231
+4 0xaaaaaa 2 100 000
+100 000 0x58b231 100 050 0x58b231
+100 050 0x58b231 150 050 0x58b231
+150 050 0x58b231 150 000 0x58b231
+150 000 0x58b231 100 000 0x58b231

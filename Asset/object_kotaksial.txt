@@ -1,0 +1,6 @@
+1
+4 0x000000 1 000 000
+000 000 0xffffff 270 000 0xffffff
+270 000 0xffffff 270 270 0xffffff
+270 270 0xffffff 000 270 0xffffff
+000 270 0xffffff 000 000 0xffffff

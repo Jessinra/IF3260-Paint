@@ -1,0 +1,12 @@
+.idea
+*.py
+main
+.vscode/
+cmake-build-debug/
+.idea/
+*.o
+error*
+.ReversedAsset/
+.ConstructedAsset/
+.NewAsset/
+.NewConstructedAsset/

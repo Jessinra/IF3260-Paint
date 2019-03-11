@@ -351,7 +351,7 @@ void Master::drawPlane(const View &view, int xStart, int yStart, const Plane &pl
 }
 
 void Master::drawSolidPlane(const View &view, int xStart, int yStart, const Plane &plane) {
-    vector<Line> planeFillerLines = this->planeFiller.getPlaneFillerLines(plane);
+    const vector<Line> planeFillerLines = this->planeFiller.getPlaneFillerLines(plane);
 
     for (const Line &line : planeFillerLines) {
         if(view.isInside(xStart, yStart, line)){

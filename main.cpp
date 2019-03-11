@@ -1,8 +1,6 @@
 #include <bits/stdc++.h>
 #include <assert.h>
 #include <string.h>
-#include <termios.h>
-#include <unistd.h>
 #include <ctime>
 #include <iostream>
 #include <utility>
@@ -10,6 +8,7 @@
 #include "Master.hpp"
 #include "MoveableObject.hpp"
 #include "Object.hpp"
+#include "MouseInputData.hpp"
 
 using namespace std;
 
@@ -21,8 +20,11 @@ using namespace std;
 
 bool application_running;
 
+queue<MouseInputData> mouseInput;
+
 void *readinput(void *thread_id) {
     char c;
+    MouseButtonType buttonType;
     SDL_Event event;
     while (application_running) {
         SDL_WaitEvent(&event);
@@ -38,9 +40,16 @@ void *readinput(void *thread_id) {
             case SDL_MOUSEBUTTONDOWN:
                 switch(event.key.keysym.sym){
                     case SDL_BUTTON_LEFT:
-                        printf("mouse coordinate %d %d\n", event.motion.x, event.motion.y);
+                        buttonType = MouseButtonType::LEFT_BUTTON;
                         break;
+                    case SDL_BUTTON_RIGHT:
+                        buttonType = MouseButtonType::RIGHT_BUTTON;
+                        break;
+                    default:
+                        buttonType = MouseButtonType::UNKNOWN;
                 }
+                mouseInput.push(MouseInputData(buttonType, event.motion.x, event.motion.y));
+                printf("mouse coordinate %d %d\n", event.motion.x, event.motion.y);
                 break;
             case SDL_QUIT:
                 application_running = false;

@@ -2,11 +2,6 @@
 #define MASTER_HPP
 
 #include <SDL2/SDL.h>
-#include <fcntl.h>
-#include <linux/fb.h>
-#include <sys/ioctl.h>
-#include <sys/mman.h>
-#include <termios.h>
 #include <unistd.h>
 #include <cstdio>
 #include <cstdlib>

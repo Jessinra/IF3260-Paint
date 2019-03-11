@@ -1,25 +1,31 @@
-
 #include "Master.hpp"
 
 int Master::framejump = 1;
 
 Master::Master(int height, int width) {
     setDimension(height, width);
-    setFbfd();
-    setVinfo();
-    setFinfo();
+
+    if(SDL_Init(SDL_INIT_VIDEO) < 0){
+        printf( "SDL could not initialize! SDL_Error: %s\n", SDL_GetError() );
+        exit(-1);
+    }
+
+    window = SDL_CreateWindow("Paint", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN);
+    if(window == NULL){
+        printf( "Window could not be created! SDL_Error: %s\n", SDL_GetError() );
+        exit(-1);
+    }
+
+    screenSurface = SDL_GetWindowSurface(window);
+
     setScreensize();
     setFrameBufferPointer();
-    setXMultiplier();
-    setXAdder();
-    setYMultiplier();
-    setYAdder();
-
-    displayVinfo();
 }
 
 Master::~Master() {
     free(this->buffer);
+    SDL_DestroyWindow( window );
+    SDL_Quit();
 }
 
 void Master::setDimension(int height, int width) {
@@ -29,93 +35,41 @@ void Master::setDimension(int height, int width) {
     this->xend = width;
 }
 
-void Master::setFbfd() {
-    // Open the file for reading and writing
-
-    int fbfd = open("/dev/fb0", O_RDWR);
-    if (!fbfd) {
-        printf("Error: cannot open framebuffer device.\n");
-        exit(1);
-    }
-
-    printf("The framebuffer device was opened successfully.\n");
-    this->fbfd = fbfd;
-}
-
-void Master::setVinfo() {
-    // Get fixed screen information
-    if (ioctl(this->fbfd, FBIOGET_FSCREENINFO, &this->finfo)) {
-        printf("Error reading fixed information.\n");
-        exit(2);
-    }
-}
-
-void Master::setFinfo() {
-    // Get variable screen information
-    if (ioctl(this->fbfd, FBIOGET_VSCREENINFO, &this->vinfo)) {
-        printf("Error reading variable information.\n");
-        exit(3);
-    }
-}
-
 void Master::setScreensize() {
     // Figure out the size of the screen in bytes
-    this->screensize = this->vinfo.xres * this->vinfo.yres * this->vinfo.bits_per_pixel / 8;
+    this->screensize = screenSurface->h * screenSurface->pitch;
 }
 
 void Master::setFrameBufferPointer() {
-    // Map the device to memory
-    this->fbp = (char *) mmap(0, this->screensize, PROT_READ | PROT_WRITE, MAP_SHARED, this->fbfd, 0);
     this->buffer = (char *) malloc(this->screensize);
-    if ((long int) this->fbp == -1) {
-        printf("Error: failed to map framebuffer device to memory.\n");
-        exit(4);
-    }
-    printf("The framebuffer device was mapped to memory successfully.\n");
-}
-
-void Master::setXAdder() {
-    this->xadder = (this->vinfo.xoffset) * this->xmultiplier;
-}
-
-void Master::setXMultiplier() {
-    this->xmultiplier = (this->vinfo.bits_per_pixel / 8);
-}
-
-void Master::setYAdder() {
-    this->yadder = this->vinfo.yoffset * this->finfo.line_length;
-}
-
-void Master::setYMultiplier() {
-    this->ymultiplier = this->finfo.line_length;
-}
-
-void Master::displayVinfo() {
-    printf("%dx%d, %dbpp\n", this->vinfo.xres, this->vinfo.yres, this->vinfo.bits_per_pixel);
 }
 
 bool Master::isInsideWindow(int x, int y) {
     return x >= xstart && x < xend && y >= ystart && y < yend;
 }
 
+int Master::getLocation(int x, int y){
+    return x * sizeof(unsigned int) + y * screenSurface->pitch;
+}
+
 void Master::assignColor(int x, int y, unsigned int color) {
-    int location = x * xmultiplier + xadder + y * ymultiplier + yadder;
+    int location = getLocation(x, y);
     if (isInsideWindow(x, y) && *((unsigned int *) (buffer + location)) == 0) {
         *((unsigned int *) (buffer + location)) = color;
     }
 }
 
 unsigned int Master::frameColor(int x, int y) {
-    if (isInsideWindow(x, y)) {
-        int location = x * xmultiplier + xadder + y * ymultiplier + yadder;
+    if (isInsideWindow(x, y) ) {
+        int location = getLocation(x, y);
         return *((unsigned int *) (buffer+ location));
     }
 }
 
 void Master::copyColor(int xTarget, int yTarget, int xSource, int ySource) {
     if (isInsideWindow(xTarget, yTarget) && isInsideWindow(xSource, ySource)) {
-        int location1 = xTarget * xmultiplier + xadder + yTarget * ymultiplier + yadder;
-        int location2 = xSource * xmultiplier + xadder + ySource * ymultiplier + yadder;
+        int location1 = getLocation(xTarget, yTarget);
+        int location2 = getLocation(xSource, ySource);
         *((unsigned int *) (buffer+ location1)) = *((unsigned int *) buffer + location2);
     }
 }
@@ -127,7 +81,7 @@ void Master::assignColorBuffer(vector<vector<unsigned int>> &buffer, int x, int 
 }
 
 void Master::clearWindow() {
-    memset(buffer, 0, (yend * ymultiplier + yadder));
+    memset(buffer, 0, this->screensize);
 }
 
 void Master::clearWindow(unsigned int color) {
@@ -136,15 +90,6 @@ void Master::clearWindow(unsigned int color) {
             assignColor(x, y, color);
         }
     }
-}
-
-void Master::moveWindowUp() {
-    for (int y = ystart; y < yend - framejump; y += framejump) {
-        int location1 = xadder + y * ymultiplier + yadder;
-        int location2 = location1 + framejump * ymultiplier;
-        memcpy(buffer + location1, buffer + location2, framejump * (1 + vinfo.yoffset) * finfo.line_length);
-    }
-    memset(buffer + (yend - framejump) * ymultiplier + yadder, 0, framejump * (ymultiplier + yadder));
 }
 
 void Master::draw(int xStart, int yStart, int **img, int height, int width) {
@@ -302,11 +247,14 @@ void Master::drawSolidObject(const Object &object) {
 }
 
 void Master::flush() {
-    memcpy(fbp, buffer, (yend * ymultiplier + yadder));
+    SDL_LockSurface(screenSurface);
+    SDL_memcpy(screenSurface->pixels, buffer, screenSurface->h * screenSurface->pitch);
+    SDL_UnlockSurface(screenSurface);
+    SDL_UpdateWindowSurface( window );
 }
 
 void Master::assignColor(const Rectangle &view, int x, int y, unsigned int color) {
-    int location = x * xmultiplier + xadder + y * ymultiplier + yadder;
+    int location = getLocation(x, y);
     if ((x>=view.getXMin() && x<view.getXMax() && y>=view.getYMin() && y<view.getYMax()) && *((unsigned int *) (buffer + location)) == 0) {
         *((unsigned int *) (buffer + location)) = color;
     }

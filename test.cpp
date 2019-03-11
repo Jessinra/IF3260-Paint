@@ -1,9 +1,39 @@
 #include <iostream>
+#include <SDL2/SDL.h>
 #include "Master.hpp"
 #include "MoveableObject.hpp"
 #include "Object.hpp"
 
 using namespace std;
+
+bool application_running;
+
+void *readinput(void *thread_id) {
+    char c;
+    SDL_Event event;
+    while (application_running) {
+        SDL_WaitEvent(&event);
+        switch (event.type)
+        {
+            case SDL_KEYDOWN:
+                printf("heh %d\n", event.key.keysym.sym);
+                break;
+            case SDL_MOUSEBUTTONDOWN:
+                switch(event.button.button){
+                    case SDL_BUTTON_LEFT:
+                        printf("%d %d\n", event.motion.x, event.motion.y);
+                        break;
+                }
+                break;
+            case SDL_QUIT:
+                application_running = false;
+                break;
+        }
+        usleep(10000);
+    }
+    pthread_exit(nullptr);
+}
+
 
 class Runner : public Master {
 protected:
@@ -19,28 +49,22 @@ public:
 
     void start() {
         bool z = true;
-        while(1){
-            clearWindow();
+        while(application_running){
 
-            for(MoveableObject & x : v){
-                if(z){
-                    x.selfDilate(0, 0, 2);
-                }
-                else{
-                    x.selfDilate(0, 0, 0.5);
-                }
-                drawSolidObject(x);
-            }
-            z = !z;
-            flush();
-
-            sleep(1);
         }
     }
 };
 
 int main() {
     Runner run;
+
+    pthread_t thread;
+    int rc, id = 0;
+    application_running = true;
+    rc = pthread_create(&thread, NULL, readinput, (void *) id);
+
     run.start();
+
+    pthread_join(thread, nullptr);
     return 0;
 }

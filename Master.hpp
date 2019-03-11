@@ -1,6 +1,7 @@
 #ifndef MASTER_HPP
 #define MASTER_HPP
 
+#include <SDL2/SDL.h>
 #include <fcntl.h>
 #include <linux/fb.h>
 #include <sys/ioctl.h>
@@ -26,13 +27,10 @@ class Master
   protected:
   
     /* unchangeable */
-    struct fb_var_screeninfo vinfo;
-    struct fb_fix_screeninfo finfo;
-    int fbfd;
+    SDL_Window* window;
+    SDL_Surface* screenSurface;
+    char *buffer;
     int screensize;
-    char *fbp, *buffer;
-    int xmultiplier, ymultiplier;
-    int xadder, yadder;
 
     /* changeable */
     int xstart, xend;
@@ -48,20 +46,13 @@ class Master
     // int offsetcycle; Not used
 
     void setDimension(int height, int width);
-    void setFbfd();
-    void setVinfo();
-    void setFinfo();
     void setScreensize();
     void setFrameBufferPointer();
-    void setXMultiplier();
-    void setXAdder();
-    void setYMultiplier();
-    void setYAdder();
+    int getLocation(int x, int y);
 
   public:
     Master(int height, int width);
     ~Master();
-    void displayVinfo();
     void flush();
 
     bool isInsideWindow(int x, int y);

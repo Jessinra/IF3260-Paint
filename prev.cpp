@@ -105,7 +105,7 @@ void *readinput(void *thread_id) {
                 application_running = false;
                 break;
         }
-        usleep(10000);
+        usleep(30000);
     }
     pthread_exit(nullptr);
 }
@@ -145,12 +145,12 @@ public:
         float ky = 0;
         float kz = 1.4;
 
-        Rectangle view1(0, 0, 700, WINDOWHEIGHT);
-        Rectangle view2(710, 0, 1000, WINDOWHEIGHT);
+        View view1(Point(0, 0), Rectangle(0, 0, 700, WINDOWHEIGHT));
+        View view2(Point(720, 0), Rectangle(0, 0, 280, WINDOWHEIGHT));
 
         MoveableObject smallmap = peta;
-        smallmap.setPos(720, 0);
-        smallmap.selfDilate(720, 0, 1.4);
+        smallmap.setPos(0, 0);
+        smallmap.selfDilate(0, 0, 1.4);
         MoveableObject mKotaklucu = kotaklucu;
         mKotaklucu.setPos(kx, ky);
         mKotaklucu.selfDilate(kx, ky, kz);
@@ -176,12 +176,13 @@ public:
         dxs[mTree.getId()] = 0;
         dys[mTree.getId()] = 0;
 
-        cerr<<"mulai"<<endl;
         while(application_running){
+            auto start = std::chrono::system_clock::now();
             // Drawing
             clearWindow();
             drawObject(mKotaklucu);
             drawSolidObject(view2, smallmap);
+//            cerr<<smallmap.getRefPos().getX()<<" "<<smallmap.getRefPos().getY()<<endl;
 
             if (display[mBuilding.getId()]) {
                 drawSolidObject(view1, mBuilding);
@@ -371,6 +372,8 @@ public:
                 ky = - dys.begin()->second / hh * smallmap.getHeight();
                 mKotaklucu.setPos(kx, ky);
             }
+            auto end = std::chrono::system_clock::now();
+            cerr<<std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()<<endl;
             usleep(6000);
         }
     }

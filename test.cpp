@@ -16,6 +16,27 @@ void *readinput(void *thread_id) {
         switch (event.type)
         {
             case SDL_KEYDOWN:
+                switch(event.key.keysym.sym){
+                    case SDLK_w:
+                    case SDLK_UP:
+                        puts("UP PRESSED");
+                        break;
+                    case SDLK_d:
+                    case SDLK_RIGHT:
+                        //
+                        break;
+                    case SDLK_s:
+                    case SDLK_DOWN:
+                        //
+                        break;
+                    case SDLK_a:
+                    case SDLK_LEFT:
+                        //
+                        break;
+                    case SDLK_1:
+                        puts("1 PRESSED");
+                        break;
+                }
                 printf("heh %d\n", event.key.keysym.sym);
                 break;
             case SDL_MOUSEBUTTONDOWN:

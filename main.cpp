@@ -19,7 +19,6 @@ using namespace std;
 #define constFactor 1.1
 
 bool application_running;
-
 queue<MouseInputData> mouseInput;
 
 void *readinput(void *thread_id) {
@@ -32,7 +31,20 @@ void *readinput(void *thread_id) {
             case SDL_KEYDOWN:
                 switch(event.key.keysym.sym){
                     case SDLK_w:
-
+                    case SDLK_UP:
+                        //
+                        break;
+                    case SDLK_d:
+                    case SDLK_RIGHT:
+                        //
+                        break;
+                    case SDLK_s:
+                    case SDLK_DOWN:
+                        //
+                        break;
+                    case SDLK_a:
+                    case SDLK_LEFT:
+                        //
                         break;
                 }
                 printf("pressed key %d\n", event.key.keysym.sym);
@@ -55,15 +67,14 @@ void *readinput(void *thread_id) {
                 application_running = false;
                 break;
         }
-        usleep(10000);
+        SDL_Delay(10000);
     }
     pthread_exit(nullptr);
 }
 
 class Runner : public Master {
 protected:
-    Object peta;
-    Object building, road, pond, tree, kotaklucu;
+    ;
 
 public:
     Runner(int h = WINDOWHEIGHT, int w = WINDOWWIDTH) : Master(h, w) {

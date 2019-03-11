@@ -253,14 +253,14 @@ void Master::flush() {
     SDL_UpdateWindowSurface( window );
 }
 
-void Master::assignColor(const Rectangle &view, int x, int y, unsigned int color) {
-    int location = getLocation(x, y);
-    if ((x>=view.getXMin() && x<view.getXMax() && y>=view.getYMin() && y<view.getYMax()) && *((unsigned int *) (buffer + location)) == 0) {
+void Master::assignColor(const View &view, int x, int y, unsigned int color) {
+    int location = getLocation(x + view.getConstRefPos().getX(), y + view.getConstRefPos().getY());
+    if (view.isInside(x, y) && *((unsigned int *) (buffer + location)) == 0) {
         *((unsigned int *) (buffer + location)) = color;
     }
 }
 
-void Master::drawLine(const Rectangle &view, int positionX, int positionY, const Line &line) {
+void Master::drawLine(const View &view, int positionX, int positionY, const Line &line) {
     // Bresenham's line algorithm with gradient coloring
 
     // Position section
@@ -269,10 +269,10 @@ void Master::drawLine(const Rectangle &view, int positionX, int positionY, const
     int xEnd = line.getEndPixel().getX() + positionX;
     int yEnd = line.getEndPixel().getY() + positionY;
 
-    if(max(xStart, xEnd) < view.getXMin() || min(xStart, xEnd) >= view.getXMax())
-        return;
-    if(max(yStart, yEnd) < view.getXMin() || min(yStart, yEnd) >= view.getYMax())
-        return;
+//    if(max(xStart, xEnd) < view.getXMin() || min(xStart, xEnd) >= view.getXMax())
+//        return;
+//    if(max(yStart, yEnd) < view.getXMin() || min(yStart, yEnd) >= view.getYMax())
+//        return;
 
     // Color section
     int colorStart = line.getStartPixel().getColor();
@@ -342,36 +342,40 @@ void Master::drawLine(const Rectangle &view, int positionX, int positionY, const
     }
 }
 
-void Master::drawPlane(const Rectangle &view, int xStart, int yStart, const Plane &plane) {
+void Master::drawPlane(const View &view, int xStart, int yStart, const Plane &plane) {
     for (const Line &line : plane.getConstRefLines()) {
-        drawLine(view, xStart, yStart, line);
+        if(view.isInside(xStart, yStart, line)) {
+            drawLine(view, xStart, yStart, line);
+        }
     }
 }
 
-void Master::drawSolidPlane(const Rectangle &view, int xStart, int yStart, const Plane &plane) {
+void Master::drawSolidPlane(const View &view, int xStart, int yStart, const Plane &plane) {
     vector<Line> planeFillerLines = this->planeFiller.getPlaneFillerLines(plane);
 
     for (const Line &line : planeFillerLines) {
-        drawLine(view, xStart, yStart, line);
+        if(view.isInside(xStart, yStart, line)){
+            drawLine(view, xStart, yStart, line);
+        }
     }
 }
 
-void Master::drawObject(const Rectangle &view, const Object &object) {
+void Master::drawObject(const View &view, const Object &object) {
     for (const MoveablePlane &plane : object.getConstRefPlanes()) {
-        if(object.getConstRefPos().getX() >= view.getXMax() || object.getConstRefPos().getY() >= view.getYMax()
-           || object.getConstRefPos().getX() + plane.getLowerRight().getX() < view.getXMin() || object.getConstRefPos().getY() + plane.getLowerRight().getY() < view.getYMin()) continue;
-        drawPlane(view, object.getConstRefPos().getX() + plane.getConstRefPos().getX(),
-                object.getConstRefPos().getY() + plane.getConstRefPos().getY(), plane);
+        if(view.isInside(object.getConstRefPos().getX(), object.getConstRefPos().getY(), plane)){
+            drawPlane(view, object.getConstRefPos().getX() + plane.getConstRefPos().getX(),
+                      object.getConstRefPos().getY() + plane.getConstRefPos().getY(), plane);
+        }
     }
 }
 
-void Master::drawSolidObject(const Rectangle &view, const Object &object) {
+void Master::drawSolidObject(const View &view, const Object &object) {
     for (const MoveablePlane &plane : object.getConstRefPlanes()) {
-        if(object.getConstRefPos().getX() + plane.getConstRefPos().getX() >= view.getXMax() || object.getConstRefPos().getY() + plane.getConstRefPos().getY() >= view.getYMax()
-           || object.getConstRefPos().getX() + plane.getConstRefPos().getX() + plane.getLowerRight().getX() < view.getXMin() || object.getConstRefPos().getY() + plane.getConstRefPos().getY() + plane.getLowerRight().getY() < view.getYMin()) continue;
-        drawPlane(view, object.getConstRefPos().getX() + plane.getConstRefPos().getX(), object.getConstRefPos().getY() + plane.getConstRefPos().getY(), plane);
-        drawSolidPlane(view, object.getConstRefPos().getX() + plane.getConstRefPos().getX(),
-                object.getConstRefPos().getY() + plane.getConstRefPos().getY(), plane);
+        if(view.isInside(object.getConstRefPos().getX(), object.getConstRefPos().getY(), plane)){
+            drawPlane(view, object.getConstRefPos().getX() + plane.getConstRefPos().getX(), object.getConstRefPos().getY() + plane.getConstRefPos().getY(), plane);
+            drawSolidPlane(view, object.getConstRefPos().getX() + plane.getConstRefPos().getX(),
+                           object.getConstRefPos().getY() + plane.getConstRefPos().getY(), plane);
+        }
     }
 }
 

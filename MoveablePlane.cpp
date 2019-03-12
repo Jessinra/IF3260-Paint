@@ -34,3 +34,27 @@ void MoveablePlane::selfDilate(float pivotX, float pivotY, float scalingConstant
     calculate();
 }
 
+void MoveablePlane::selfStretchX(float pivotX, float pivotY, float scalingConstant) {
+    pivotX -= position.getX();
+    pivotY -= position.getY();
+
+    for (Line &line : this->lines){
+        line.setStartPixel(line.getStartPixel().stretchX(pivotX, pivotY, scalingConstant));
+        line.setEndPixel(line.getEndPixel().stretchX(pivotX, pivotY, scalingConstant));
+    }
+
+    calculate();
+}
+
+void MoveablePlane::selfStretchY(float pivotX, float pivotY, float scalingConstant) {
+    pivotX -= position.getX();
+    pivotY -= position.getY();
+
+    for (Line &line : this->lines){
+        line.setStartPixel(line.getStartPixel().stretchY(pivotX, pivotY, scalingConstant));
+        line.setEndPixel(line.getEndPixel().stretchY(pivotX, pivotY, scalingConstant));
+    }
+
+    calculate();
+}
+

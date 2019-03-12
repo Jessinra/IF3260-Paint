@@ -241,6 +241,8 @@ void Master::drawObject(const Object &object) {
 
 void Master::drawSolidObject(const Object &object) {
     for (const MoveablePlane &plane : object.getConstRefPlanes()) {
+        drawPlane(object.getConstRefPos().getX() + plane.getConstRefPos().getX(),
+                  object.getConstRefPos().getY() + plane.getConstRefPos().getY(), plane);
         drawSolidPlane(object.getConstRefPos().getX() + plane.getConstRefPos().getX(),
                 object.getConstRefPos().getY() + plane.getConstRefPos().getY(), plane);
     }
@@ -303,9 +305,9 @@ void Master::drawLine(const View &view, int positionX, int positionY, const Line
         for (int y = yStart; y != yEnd + yStep; y += yStep) {
             unsigned int color = ((unsigned int) floor(red) << 16) + ((unsigned int) floor(green) << 8) +
                                  ((unsigned int) floor(blue));
-            if (frameColor(xStart, y) == 0) {
+//            if (frameColor(view.getConstRefPos().getX() + xStart, view.getConstRefPos().getY() + y) == 0) {
                 assignColor(view, xStart, y, color);
-            }
+//            }
 
             red += redStep;
             green += greenStep;
@@ -320,9 +322,9 @@ void Master::drawLine(const View &view, int positionX, int positionY, const Line
     for (int x = xStart; x != xEnd + xStep;) {
         unsigned int color =
                 ((unsigned int) floor(red) << 16) + ((unsigned int) floor(green) << 8) + ((unsigned int) floor(blue));
-        if (frameColor(view.getConstRefPos().getX() + x, view.getConstRefPos().getY() + y) == 0) {
+//        if (frameColor(view.getConstRefPos().getX() + x, view.getConstRefPos().getY() + y) == 0) {
             assignColor(view, x, y, color);
-        }
+//        }
 
         if (error >= 0.5) {
             y += yStep;
@@ -345,6 +347,7 @@ void Master::drawLine(const View &view, int positionX, int positionY, const Line
 void Master::drawPlane(const View &view, int xStart, int yStart, const Plane &plane) {
     for (const Line &line : plane.getConstRefLines()) {
         if(view.isInside(xStart, yStart, line)) {
+//            cerr<<line.getRefStartPixel().getX() + xStart<<" "<<line.getRefStartPixel().getY() + yStart<<" "<<line.getRefEndPixel().getX() + xStart<<" "<<line.getRefEndPixel().getY() + yStart<<endl;
             drawLine(view, xStart, yStart, line);
         }
     }
@@ -355,6 +358,7 @@ void Master::drawSolidPlane(const View &view, int xStart, int yStart, const Plan
 
     for (const Line &line : planeFillerLines) {
         if(view.isInside(xStart, yStart, line)){
+//            cerr<<line.getRefStartPixel().getX() + xStart<<" "<<line.getRefStartPixel().getY() + yStart<<" "<<line.getRefEndPixel().getX() + xStart<<" "<<line.getRefEndPixel().getY() + yStart<<endl;
             drawLine(view, xStart, yStart, line);
         }
     }

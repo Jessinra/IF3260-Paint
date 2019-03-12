@@ -27,6 +27,8 @@ class MoveableObject : public Object
     void move();
     void selfRotate(float pivotX, float pivotY, float theta);
     void selfDilate(float pivotX, float pivotY, float scalingConstant);
+    void selfStretchX(float pivotX, float pivotY, float scalingConstant);
+    void selfStretchY(float pivotX, float pivotY, float scalingConstant);
 };
 
 #endif

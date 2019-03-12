@@ -50,3 +50,15 @@ Pixel Pixel::dilated(float pivotX, float pivotY, float scalingConstant) {
 
     return Pixel(resultX, resultY, this->color);
 }
+
+Pixel Pixel::stretchX(float pivotX, float pivotY, float scalingConstant) {
+    float resultX = scalingConstant * (x - pivotX) + pivotX;
+
+    return Pixel(resultX, y, this->color);
+}
+
+Pixel Pixel::stretchY(float pivotX, float pivotY, float scalingConstant) {
+    float resultY = scalingConstant * (y - pivotY) + pivotY;
+
+    return Pixel(x, resultY, this->color);
+}

@@ -92,8 +92,13 @@ void *readinput(void *thread_id) {
 class Runner : public Master {
 protected:
     View toolbar, workspace, verticalscroll, horizontalscroll;
-    Object background;
+    Object scrollbar;
     MoveableObject backgroundToolbar, backgroundVerScroll, backgroundHorScroll;
+    MoveableObject verScrollBar, horScrollBar;
+    MoveableObject workingObject;
+    vector<MoveableObject> tools;
+    float widthratio;
+    float heightratio;
 
 public:
     Runner(int h = WINDOWHEIGHT, int w = WINDOWWIDTH) : Master(h, w) {
@@ -101,9 +106,16 @@ public:
         workspace = View(Point(0, 40), Rectangle(0, 0, 980, 740));
         verticalscroll = View(Point(980, 20), Rectangle(0, 0, 20, 660));
         horizontalscroll = View(Point(0, 680), Rectangle(0, 0, 980, 20));
+
         backgroundToolbar = Object(0, 0, "Asset/background_toolbar.txt");
         backgroundVerScroll = Object(0, 0, "Asset/background_vertical_scroll.txt");
         backgroundHorScroll = Object(0, 0, "Asset/background_horizontal_scroll.txt");
+        scrollbar = Object(0, 0, "Asset/scroll_bar.txt");
+        verScrollBar = scrollbar;
+
+        widthratio = 1.0f * workingObject.getWidth() / workspace.getWidth();
+        heightratio = 1.0f * workingObject.getHeight() / workingObject.getHeight();
+        resizeScrollBar();
     }
 
     void start() {
@@ -124,20 +136,25 @@ private:
 
     void render(){
         clearWindow();
+
         drawSolidObject(toolbar, backgroundToolbar);
+        drawSolidObject(verticalscroll, verScrollBar);
         drawSolidObject(verticalscroll, backgroundVerScroll);
         drawSolidObject(horizontalscroll, backgroundHorScroll);
+
         flush();
     }
 
+    void resizeScrollBar(){
+        if()
+    }
+
     void processClick(){
-        // TODO:
-        // Preocess Click
+        // TODO: Process Click
     }
 
     void adjustMove(){
-        // TODO:
-        // Move View
+        // TODO: Move View
     }
 
     void newWorkSpace(){

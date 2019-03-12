@@ -9,6 +9,7 @@ private:
     Rectangle viewbox;
     Point position;
 public:
+    View();
     View(const Point &position, const Rectangle &box);
 
     /* Setter */

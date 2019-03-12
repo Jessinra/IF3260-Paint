@@ -1,5 +1,9 @@
 #include "View.hpp"
 
+View::View() {
+
+}
+
 View::View(const Point &position, const Rectangle &box) {
     this->position = position;
     this->viewbox = box;
@@ -91,5 +95,5 @@ bool View::isInside(int offsetx, int offsety, const Point &point) const{
 }
 
 bool View::isInside(int x, int y) const {
-    return x >= viewbox.getXMin() && x <= viewbox.getXMax() && y >= viewbox.getYMin() && y <= viewbox.getYMax();
+    return x >= viewbox.getXMin() && x < viewbox.getXMax() && y >= viewbox.getYMin() && y < viewbox.getYMax();
 }

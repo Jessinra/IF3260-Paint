@@ -320,7 +320,7 @@ void Master::drawLine(const View &view, int positionX, int positionY, const Line
     for (int x = xStart; x != xEnd + xStep;) {
         unsigned int color =
                 ((unsigned int) floor(red) << 16) + ((unsigned int) floor(green) << 8) + ((unsigned int) floor(blue));
-        if (frameColor(x, y) == 0) {
+        if (frameColor(view.getConstRefPos().getX() + x, view.getConstRefPos().getY() + y) == 0) {
             assignColor(view, x, y, color);
         }
 

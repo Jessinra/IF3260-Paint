@@ -11,6 +11,7 @@ class MoveableObject : public Object
     float dx, dy;
 
   public:
+    MoveableObject();
     MoveableObject(float x, float y, const string &filename);
     MoveableObject(float x, float y, float dx, float dy, float speed, const string &filename);
     MoveableObject(const Object &obj);

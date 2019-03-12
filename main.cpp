@@ -84,36 +84,45 @@ void *readinput(void *thread_id) {
                 application_running = false;
                 break;
         }
-        SDL_Delay(10000);
+        usleep(10000);
     }
     pthread_exit(nullptr);
 }
 
 class Runner : public Master {
 protected:
-    ;
+    View toolbar, workspace, verticalscroll, horizontalscroll;
+    Object background;
+    MoveableObject backgroundToolbar, backgroundVerScroll, backgroundHorScroll;
 
 public:
     Runner(int h = WINDOWHEIGHT, int w = WINDOWWIDTH) : Master(h, w) {
-
+        toolbar = View(Point(0, 0), Rectangle(0, 0, WINDOWWIDTH, 40));
+        verticalscroll = View(Point(0, 20), Rectangle(0, 0, 20, 660));
+        backgroundToolbar = Object(0, 0, "Asset/background_toolbar.txt");
+        backgroundVerScroll = Object(0, 0, "Asset/background_vertical_scroll.txt");
     }
 
     void start() {
-        // Prerender
-
+        preprocess();
         while(application_running){
             render();
             processClick();
             adjustMove();
 
-//            usleep(6000);
+            usleep(6000);
         }
     }
 
 private:
+    void preprocess(){
+
+    }
+
     void render(){
         clearWindow();
-
+        drawSolidObject(toolbar, backgroundToolbar);
+        drawSolidObject(verticalscroll, backgroundVerScroll);
         flush();
     }
 
@@ -191,7 +200,6 @@ int main() {
 
     Runner run;
     run.start();
-    application_running = false;
 
     /* close */
     pthread_join(thread, nullptr);

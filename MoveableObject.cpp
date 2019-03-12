@@ -1,5 +1,8 @@
-
 #include "MoveableObject.hpp"
+
+MoveableObject::MoveableObject() {
+
+}
 
 MoveableObject::MoveableObject(float x, float y, const std::string &filename) : Object(x, y, filename)
 {

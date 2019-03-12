@@ -20,6 +20,8 @@ using namespace std;
 
 bool application_running;
 queue<MouseInputData> mouseInput;
+int moveVer, moveHor;
+int speed = 1;
 
 void *readinput(void *thread_id) {
     char c;
@@ -32,22 +34,37 @@ void *readinput(void *thread_id) {
                 switch(event.key.keysym.sym){
                     case SDLK_w:
                     case SDLK_UP:
-                        //
+                        ++moveVer;
                         break;
                     case SDLK_d:
                     case SDLK_RIGHT:
-                        //
+                        ++moveHor;
                         break;
                     case SDLK_s:
                     case SDLK_DOWN:
-                        //
+                        --moveVer;
                         break;
                     case SDLK_a:
                     case SDLK_LEFT:
-                        //
+                        --moveHor;
+                        break;
+                    case SDLK_j:
+
+                        break;
+                    case SDLK_k:
+
+                        break;
+                    case SDLK_u:
+                        if(speed > 1){
+                            --speed;
+                        }
+                        break;
+                    case SDLK_i:
+                        if(speed < 100){
+                            ++speed;
+                        }
                         break;
                 }
-                printf("pressed key %d\n", event.key.keysym.sym);
                 break;
             case SDL_MOUSEBUTTONDOWN:
                 switch(event.key.keysym.sym){
@@ -82,12 +99,31 @@ public:
     }
 
     void start() {
-        while(application_running){
-            clearWindow();
-            flush();
+        // Prerender
 
-            usleep(6000);
+        while(application_running){
+            render();
+            processClick();
+            adjustMove();
+
+//            usleep(6000);
         }
+    }
+
+    void render(){
+        clearWindow();
+
+        flush();
+    }
+
+    void processClick(){
+        // TODO:
+        // Preocess Click
+    }
+
+    void adjustMove(){
+        // TODO:
+        // Move View
     }
 };
 

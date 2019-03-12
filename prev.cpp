@@ -177,7 +177,7 @@ public:
         dys[mTree.getId()] = 0;
 
         while(application_running){
-            auto start = std::chrono::system_clock::now();
+//            auto start = std::chrono::system_clock::now();
             // Drawing
             clearWindow();
             drawObject(mKotaklucu);
@@ -372,8 +372,8 @@ public:
                 ky = - dys.begin()->second / hh * smallmap.getHeight();
                 mKotaklucu.setPos(kx, ky);
             }
-            auto end = std::chrono::system_clock::now();
-            cerr<<std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()<<endl;
+//            auto end = std::chrono::system_clock::now();
+//            cerr<<std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()<<endl;
             usleep(6000);
         }
     }

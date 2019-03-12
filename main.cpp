@@ -50,10 +50,10 @@ void *readinput(void *thread_id) {
                         ++moveHor;
                         break;
                     case SDLK_j:
-
+                        ++zoom;
                         break;
                     case SDLK_k:
-
+                        --zoom;
                         break;
                     case SDLK_u:
                         if(speed > 1){
@@ -96,7 +96,7 @@ protected:
     Object scrollbar;
     MoveableObject backgroundToolbar, backgroundVerScroll, backgroundHorScroll;
     MoveableObject verScrollBar, horScrollBar;
-    MoveableObject workingObject;
+    MoveableObject workingObject, viewWorkingObject;
     vector<MoveableObject> tools;
     vector<MoveablePlane> *workingShapes;
     float widthratio;
@@ -116,7 +116,6 @@ public:
         scrollbar = Object(0, 0, "Asset/scroll_bar.txt");
 
         workingObject = Object(0, 0, "Asset/object_building.txt");
-        workingObject.selfDilate(0, 0, 10);
         workingShapes = &workingObject.getRefPlanes();
 
         resizeScrollBar();
@@ -189,7 +188,10 @@ private:
         if(zoom != 0){
             if(zoom > 0){
                 if(zoomratio < 20){
-
+                    zoomratio *= constFactor;
+                    --zoom;
+                    workingObject.selfDilate(workspace.getWidth() / 2, workspace.getHeight() / 2, constFactor);
+                    resizeScrollBar();
                 }
                 else{
                     zoom = 0;
@@ -197,13 +199,20 @@ private:
             }
             else{
                 if(zoomratio > 1.0f/20){
-
+                    zoomratio /= constFactor;
+                    workingObject.selfDilate(workspace.getWidth() / 2, workspace.getHeight() / 2, 1/constFactor);
+                    ++zoom;
+                    resizeScrollBar();
                 }
                 else{
                     zoom = 0;
                 }
             }
         }
+    }
+
+    void doZoom(){
+
     }
 
     void adjustMove(){

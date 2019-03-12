@@ -103,7 +103,7 @@ protected:
 public:
     Runner(int h = WINDOWHEIGHT, int w = WINDOWWIDTH) : Master(h, w) {
         toolbar = View(Point(0, 0), Rectangle(0, 0, WINDOWWIDTH, 40));
-        workspace = View(Point(0, 40), Rectangle(0, 0, 980, 740));
+        workspace = View(Point(0, 40), Rectangle(0, 0, 980, 640));
         verticalscroll = View(Point(980, 20), Rectangle(0, 0, 20, 660));
         horizontalscroll = View(Point(0, 680), Rectangle(0, 0, 980, 20));
 
@@ -111,11 +111,16 @@ public:
         backgroundVerScroll = Object(0, 0, "Asset/background_vertical_scroll.txt");
         backgroundHorScroll = Object(0, 0, "Asset/background_horizontal_scroll.txt");
         scrollbar = Object(0, 0, "Asset/scroll_bar.txt");
-        verScrollBar = scrollbar;
+        cerr<<"scrollbar "<<scrollbar.getHeight()<<" "<<scrollbar.getWidth()<<endl;
 
-        widthratio = 1.0f * workingObject.getWidth() / workspace.getWidth();
-        heightratio = 1.0f * workingObject.getHeight() / workingObject.getHeight();
+        cerr<<"working in"<<endl;
+        workingObject = Object(0, 0, "Asset/tes.aneh");
+        cerr<<"working out"<<endl;
+        cerr<<workspace.getHeight()<<" "<<workspace.getWidth()<<" "<<workingObject.getHeight()<<" "<<workingObject.getWidth()<<endl;
+
+        cerr<<"resize in"<<endl;
         resizeScrollBar();
+        cerr<<"resize out"<<endl;
     }
 
     void start() {
@@ -126,6 +131,7 @@ public:
             adjustMove();
 
             usleep(6000);
+//            application_running = false;
         }
     }
 
@@ -140,13 +146,27 @@ private:
         drawSolidObject(toolbar, backgroundToolbar);
         drawSolidObject(verticalscroll, verScrollBar);
         drawSolidObject(verticalscroll, backgroundVerScroll);
+        drawSolidObject(horizontalscroll, horScrollBar);
         drawSolidObject(horizontalscroll, backgroundHorScroll);
+        drawSolidObject(workspace, workingObject);
 
         flush();
     }
 
     void resizeScrollBar(){
-        if()
+        widthratio = max(1.0f * (workingObject.getWidth()-1) / workspace.getWidth(), 1.0f);
+        horScrollBar = scrollbar;
+        horScrollBar.selfStretchX(0, 0, 1/widthratio * (1.0f*horizontalscroll.getWidth() / (horScrollBar.getWidth() - 1)));
+        if(widthratio > 1){
+            horScrollBar.getRefPos().setX((-workingObject.getConstRefPos().getX()) / ((workingObject.getWidth()-1) - workspace.getWidth()) *(horizontalscroll.getWidth() - (horScrollBar.getWidth() - 1)));
+        }
+
+        heightratio = max(1.0f * (workingObject.getHeight()-1) / workspace.getHeight(), 1.0f);
+        verScrollBar = scrollbar;
+        verScrollBar.selfStretchY(0, 0, 1/heightratio * (1.0f*verticalscroll.getHeight() / (verScrollBar.getHeight() - 1)));
+        if(heightratio > 1){
+            verScrollBar.getRefPos().setX((-workingObject.getConstRefPos().getY()) / ((workingObject.getHeight()-1) - workspace.getHeight()) *(verticalscroll.getHeight() - (verScrollBar.getHeight() - 1)));
+        }
     }
 
     void processClick(){

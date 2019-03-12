@@ -271,11 +271,6 @@ void Master::drawLine(const View &view, int positionX, int positionY, const Line
     int xEnd = line.getEndPixel().getX() + positionX;
     int yEnd = line.getEndPixel().getY() + positionY;
 
-//    if(max(xStart, xEnd) < view.getXMin() || min(xStart, xEnd) >= view.getXMax())
-//        return;
-//    if(max(yStart, yEnd) < view.getXMin() || min(yStart, yEnd) >= view.getYMax())
-//        return;
-
     // Color section
     int colorStart = line.getStartPixel().getColor();
     int colorEnd = line.getEndPixel().getColor();
@@ -348,7 +343,9 @@ void Master::drawPlane(const View &view, int xStart, int yStart, const Plane &pl
     for (const Line &line : plane.getConstRefLines()) {
         if(view.isInside(xStart, yStart, line)) {
 //            cerr<<line.getRefStartPixel().getX() + xStart<<" "<<line.getRefStartPixel().getY() + yStart<<" "<<line.getRefEndPixel().getX() + xStart<<" "<<line.getRefEndPixel().getY() + yStart<<endl;
+//            cerr<<"\tdraw line in"<<endl;
             drawLine(view, xStart, yStart, line);
+//            cerr<<"\tdraw line out"<<endl;
         }
     }
 }
@@ -376,9 +373,13 @@ void Master::drawObject(const View &view, const Object &object) {
 void Master::drawSolidObject(const View &view, const Object &object) {
     for (const MoveablePlane &plane : object.getConstRefPlanes()) {
         if(view.isInside(object.getConstRefPos().getX(), object.getConstRefPos().getY(), plane)){
+//            cerr<<"\tdraw plane in"<<endl;
             drawPlane(view, object.getConstRefPos().getX() + plane.getConstRefPos().getX(), object.getConstRefPos().getY() + plane.getConstRefPos().getY(), plane);
+//            cerr<<"\tdraw plane out"<<endl;
+//            cerr<<"\tdraw solid plane in"<<endl;
             drawSolidPlane(view, object.getConstRefPos().getX() + plane.getConstRefPos().getX(),
                            object.getConstRefPos().getY() + plane.getConstRefPos().getY(), plane);
+//            cerr<<"\tdraw solid plane out"<<endl;
         }
     }
 }

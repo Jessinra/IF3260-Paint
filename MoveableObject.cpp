@@ -8,7 +8,7 @@ MoveableObject::MoveableObject(float x, float y, const std::string &filename) : 
     this->dx = 0;
     this->dy = 0;
     this->speed = 1;
-    calculate();
+//    calculate();
 }
 
 MoveableObject::MoveableObject(float x, float y, float dx, float dy, float speed, const std::string &filename) : Object(

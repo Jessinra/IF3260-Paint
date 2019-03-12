@@ -61,7 +61,11 @@ protected:
     vector<MoveableObject> v;
 public:
     Runner(int h = 700, int w = 1000) : Master(h, w) {
-        v.push_back(Object(100, 100, "Asset/object_rotate_symbol.txt"));
+        v.push_back(Object(0, 0, "Asset/icon_triangle.txt"));
+        v.push_back(Object(50, 0, "Asset/icon_rectangle.txt"));
+        v.push_back(Object(0, 50, "Asset/icon_rotate.txt"));
+        v.push_back(Object(50, 50, "Asset/icon_zoom_out.txt"));
+        v.push_back(Object(100, 50, "Asset/icon_zoom_in.txt"));
     }
 
     void start() {

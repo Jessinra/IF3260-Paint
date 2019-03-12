@@ -18,6 +18,7 @@ string gen_random(const int len) {
 
 Object::Object()
 {
+    xMin = xMax = yMin = yMax = 0;
 }
 
 Object::Object(float x, float y, std::string filename)

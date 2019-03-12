@@ -24,6 +24,8 @@ class Pixel : public Point
     
     Pixel rotation(float pivotX, float pivotY, float theta);
     Pixel dilated(float pivotX, float pivotY, float scalingConstant);
+    Pixel stretchX(float pivotX, float pivotY, float scalingConstant);
+    Pixel stretchY(float pivotX, float pivotY, float scalingConstant);
 };
 
 #endif

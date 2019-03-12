@@ -14,6 +14,8 @@ public:
 
   void selfRotate(float pivotX, float pivotY, float theta) override;
   void selfDilate(float pivotX, float pivotY, float scalingConstant) override;
+  void selfStretchX(float pivotX, float pivotY, float scalingConstant);
+  void selfStretchY(float pivotX, float pivotY, float scalingConstant);
 };
 
 #endif

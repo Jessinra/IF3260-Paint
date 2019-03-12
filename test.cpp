@@ -58,20 +58,33 @@ void *readinput(void *thread_id) {
 
 class Runner : public Master {
 protected:
-    Object a,b,c;
     vector<MoveableObject> v;
 public:
     Runner(int h = 700, int w = 1000) : Master(h, w) {
-        v.push_back(Object(0, 0, "Asset/object_building.txt"));
-        v.push_back(Object(0, 0, "Asset/object_kolam.txt"));
-        v.push_back(Object(0, 0, "Asset/object_pohon.txt"));
-        v.push_back(Object(0, 0, "Asset/object_road.txt"));
+        v.push_back(Object(100, 100, "Asset/object_rotate_symbol.txt"));
     }
 
     void start() {
         bool z = true;
         while(application_running){
+            clearWindow();
 
+            for(const Object &x : v){
+                drawSolidObject(x);
+            }
+
+//            for(MoveableObject &x : v){
+//                if(z){
+//                    x.selfStretchX(118, 118, 2);
+//                }
+//                else{
+//                    x.selfStretchX(118, 118, 0.5);
+//                }
+//                z = !z;
+//            }
+
+            flush();
+            usleep(10000);
         }
     }
 };

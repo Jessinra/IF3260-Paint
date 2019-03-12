@@ -98,9 +98,12 @@ protected:
 public:
     Runner(int h = WINDOWHEIGHT, int w = WINDOWWIDTH) : Master(h, w) {
         toolbar = View(Point(0, 0), Rectangle(0, 0, WINDOWWIDTH, 40));
-        verticalscroll = View(Point(0, 20), Rectangle(0, 0, 20, 660));
+        workspace = View(Point(0, 40), Rectangle(0, 0, 980, 740));
+        verticalscroll = View(Point(980, 20), Rectangle(0, 0, 20, 660));
+        horizontalscroll = View(Point(0, 680), Rectangle(0, 0, 980, 20));
         backgroundToolbar = Object(0, 0, "Asset/background_toolbar.txt");
         backgroundVerScroll = Object(0, 0, "Asset/background_vertical_scroll.txt");
+        backgroundHorScroll = Object(0, 0, "Asset/background_horizontal_scroll.txt");
     }
 
     void start() {
@@ -123,6 +126,7 @@ private:
         clearWindow();
         drawSolidObject(toolbar, backgroundToolbar);
         drawSolidObject(verticalscroll, backgroundVerScroll);
+        drawSolidObject(horizontalscroll, backgroundHorScroll);
         flush();
     }
 

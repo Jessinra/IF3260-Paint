@@ -1,0 +1,6 @@
+1
+4 0xffffff 1 000 000
+000 000 0xffffff 000 019 0xffffff
+000 019 0xffffff 999 019 0xffffff
+999 019 0xffffff 999 000 0xffffff
+999 000 0xffffff 000 000 0xffffff

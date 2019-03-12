@@ -139,9 +139,7 @@ const vector<MoveablePlane> &Object::getConstRefPlanes() const {
 }
 
 void Object::calculate() {
-    cerr<<"i was called"<<endl;
     if(planes.empty()) return;
-    cerr<<"i was called and go in"<<endl;
 
     xMin = planes[0].getRefPos().getX();
     yMin = planes[0].getRefPos().getY();
@@ -157,7 +155,6 @@ void Object::calculate() {
 
     xMax -= xMin;
     yMax -= yMin;
-    cerr<<xMin<<" "<<xMax<<" "<<yMin<<" "<<yMax<<endl;
 
     for(MoveablePlane &plane : planes){
         plane.setPos(plane.getRefPos().getX() - xMin, plane.getRefPos().getY() - yMin);

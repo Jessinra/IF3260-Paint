@@ -4,6 +4,7 @@
 #include <ctime>
 #include <iostream>
 #include <utility>
+#include <algorithm>
 #include <SDL2/SDL.h>
 #include "Master.hpp"
 #include "MoveableObject.hpp"
@@ -20,7 +21,7 @@ using namespace std;
 
 bool application_running;
 queue<MouseInputData> mouseInput;
-int moveVer, moveHor;
+int moveVer, moveHor, zoom;
 int speed = 1;
 
 void *readinput(void *thread_id) {
@@ -38,7 +39,7 @@ void *readinput(void *thread_id) {
                         break;
                     case SDLK_d:
                     case SDLK_RIGHT:
-                        ++moveHor;
+                        --moveHor;
                         break;
                     case SDLK_s:
                     case SDLK_DOWN:
@@ -46,7 +47,7 @@ void *readinput(void *thread_id) {
                         break;
                     case SDLK_a:
                     case SDLK_LEFT:
-                        --moveHor;
+                        ++moveHor;
                         break;
                     case SDLK_j:
 
@@ -84,7 +85,7 @@ void *readinput(void *thread_id) {
                 application_running = false;
                 break;
         }
-        usleep(10000);
+        usleep(15000);
     }
     pthread_exit(nullptr);
 }
@@ -97,30 +98,28 @@ protected:
     MoveableObject verScrollBar, horScrollBar;
     MoveableObject workingObject;
     vector<MoveableObject> tools;
+    vector<MoveablePlane> *workingShapes;
     float widthratio;
     float heightratio;
+    float zoomratio;
 
 public:
     Runner(int h = WINDOWHEIGHT, int w = WINDOWWIDTH) : Master(h, w) {
         toolbar = View(Point(0, 0), Rectangle(0, 0, WINDOWWIDTH, 40));
         workspace = View(Point(0, 40), Rectangle(0, 0, 980, 640));
-        verticalscroll = View(Point(980, 20), Rectangle(0, 0, 20, 660));
+        verticalscroll = View(Point(980, 40), Rectangle(0, 0, 20, 640));
         horizontalscroll = View(Point(0, 680), Rectangle(0, 0, 980, 20));
 
         backgroundToolbar = Object(0, 0, "Asset/background_toolbar.txt");
         backgroundVerScroll = Object(0, 0, "Asset/background_vertical_scroll.txt");
         backgroundHorScroll = Object(0, 0, "Asset/background_horizontal_scroll.txt");
         scrollbar = Object(0, 0, "Asset/scroll_bar.txt");
-        cerr<<"scrollbar "<<scrollbar.getHeight()<<" "<<scrollbar.getWidth()<<endl;
 
-        cerr<<"working in"<<endl;
-        workingObject = Object(0, 0, "Asset/tes.aneh");
-        cerr<<"working out"<<endl;
-        cerr<<workspace.getHeight()<<" "<<workspace.getWidth()<<" "<<workingObject.getHeight()<<" "<<workingObject.getWidth()<<endl;
+        workingObject = Object(0, 0, "Asset/object_building.txt");
+        workingObject.selfDilate(0, 0, 10);
+        workingShapes = &workingObject.getRefPlanes();
 
-        cerr<<"resize in"<<endl;
         resizeScrollBar();
-        cerr<<"resize out"<<endl;
     }
 
     void start() {
@@ -128,6 +127,7 @@ public:
         while(application_running){
             render();
             processClick();
+            adjustZoom();
             adjustMove();
 
             usleep(6000);
@@ -137,7 +137,8 @@ public:
 
 private:
     void preprocess(){
-
+        moveVer = moveHor = zoom = 0;
+        zoomratio = 1;
     }
 
     void render(){
@@ -148,24 +149,35 @@ private:
         drawSolidObject(verticalscroll, backgroundVerScroll);
         drawSolidObject(horizontalscroll, horScrollBar);
         drawSolidObject(horizontalscroll, backgroundHorScroll);
+
         drawSolidObject(workspace, workingObject);
 
         flush();
     }
 
     void resizeScrollBar(){
-        widthratio = max(1.0f * (workingObject.getWidth()-1) / workspace.getWidth(), 1.0f);
+        widthratio = max(1.0f * workingObject.getWidth() / (workspace.getWidth() + 1), 1.0f);
         horScrollBar = scrollbar;
-        horScrollBar.selfStretchX(0, 0, 1/widthratio * (1.0f*horizontalscroll.getWidth() / (horScrollBar.getWidth() - 1)));
-        if(widthratio > 1){
-            horScrollBar.getRefPos().setX((-workingObject.getConstRefPos().getX()) / ((workingObject.getWidth()-1) - workspace.getWidth()) *(horizontalscroll.getWidth() - (horScrollBar.getWidth() - 1)));
-        }
+        horScrollBar.selfStretchX(0, 0, 1/widthratio * (1.0f*(horizontalscroll.getWidth() + 1) / horScrollBar.getWidth()));
 
         heightratio = max(1.0f * (workingObject.getHeight()-1) / workspace.getHeight(), 1.0f);
         verScrollBar = scrollbar;
-        verScrollBar.selfStretchY(0, 0, 1/heightratio * (1.0f*verticalscroll.getHeight() / (verScrollBar.getHeight() - 1)));
+        verScrollBar.selfStretchY(0, 0, 1/heightratio * (1.0f*(verticalscroll.getHeight() + 1) / verScrollBar.getHeight()));
+
+        cerr<<"ratio "<<widthratio<<" "<<heightratio<<endl;
+        cerr<<horScrollBar.getWidth()<<" "<<verScrollBar.getHeight()<<endl;
+        cerr<<workingObject.getWidth()<<" "<<workingObject.getHeight()<<endl;
+        cerr<<workspace.getWidth()<<" "<<workspace.getHeight()<<endl;
+
+        reposScrollBar();
+    }
+
+    void reposScrollBar(){
+        if(widthratio > 1){
+            horScrollBar.getRefPos().setX(max(0.0f, (-workingObject.getConstRefPos().getX()) / ((workingObject.getWidth()-1) - workspace.getWidth()) *(horizontalscroll.getWidth() - (horScrollBar.getWidth() - 1))));
+        }
         if(heightratio > 1){
-            verScrollBar.getRefPos().setX((-workingObject.getConstRefPos().getY()) / ((workingObject.getHeight()-1) - workspace.getHeight()) *(verticalscroll.getHeight() - (verScrollBar.getHeight() - 1)));
+            verScrollBar.getRefPos().setY(max(0.0f, (-workingObject.getConstRefPos().getY()) / ((workingObject.getHeight()-1) - workspace.getHeight()) *(verticalscroll.getHeight() - (verScrollBar.getHeight() - 1))));
         }
     }
 
@@ -173,8 +185,69 @@ private:
         // TODO: Process Click
     }
 
+    void adjustZoom(){
+        if(zoom != 0){
+            if(zoom > 0){
+                if(zoomratio < 20){
+
+                }
+                else{
+                    zoom = 0;
+                }
+            }
+            else{
+                if(zoomratio > 1.0f/20){
+
+                }
+                else{
+                    zoom = 0;
+                }
+            }
+        }
+    }
+
     void adjustMove(){
-        // TODO: Move View
+        if(moveHor != 0){
+            if(moveHor > 0){
+                if(workingObject.getConstRefPos().getX() < 0){
+                    workingObject.getRefPos().setX(min(workingObject.getConstRefPos().getX() + speed, 0.0f));
+                    --moveHor;
+                }
+                else{
+                    moveHor = 0;
+                }
+            }
+            else{
+                if(workingObject.getConstRefPos().getX() + workingObject.getLowerRight().getX() >= workspace.getConstRefBox().getXMax()){
+                    workingObject.getRefPos().setX(max(workingObject.getConstRefPos().getX() - speed, (float)min(workspace.getWidth() - workingObject.getWidth(), 0)));
+                    ++moveHor;
+                }
+                else{
+                    moveHor = 0;
+                }
+            }
+        }
+        if(moveVer != 0){
+            if(moveVer > 0){
+                if(workingObject.getConstRefPos().getY() < 0){
+                    workingObject.getRefPos().setY(min(workingObject.getConstRefPos().getY() + speed, 0.0f));
+                    --moveVer;
+                }
+                else{
+                    moveVer = 0;
+                }
+            }
+            else{
+                if(workingObject.getConstRefPos().getY() + workingObject.getLowerRight().getY() >= workspace.getConstRefBox().getYMax()){
+                    workingObject.getRefPos().setY(max(workingObject.getConstRefPos().getY() - speed, (float)min(workspace.getHeight() - workingObject.getHeight(), 0)));
+                    ++moveVer;
+                }
+                else{
+                    moveVer = 0;
+                }
+            }
+        }
+        reposScrollBar();
     }
 
     void newWorkSpace(){

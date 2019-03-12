@@ -96,7 +96,7 @@ protected:
     Object scrollbar;
     MoveableObject backgroundToolbar, backgroundVerScroll, backgroundHorScroll;
     MoveableObject verScrollBar, horScrollBar;
-    MoveableObject workingObject, viewWorkingObject;
+    MoveableObject workingObject;
     vector<MoveableObject> tools;
     vector<MoveablePlane> *workingShapes;
     float widthratio;
@@ -211,10 +211,6 @@ private:
         }
     }
 
-    void doZoom(){
-
-    }
-
     void adjustMove(){
         if(moveHor != 0){
             if(moveHor > 0){
@@ -309,6 +305,22 @@ private:
 
     void pickColor(){
         // TODO: Make Color Picker
+    }
+
+    void panLeft(){
+        ++moveHor;
+    }
+
+    void panRight(){
+        --moveHor;
+    }
+
+    void panTop(){
+        ++moveVer;
+    }
+
+    void panBottom(){
+        --moveVer;
     }
 };
 

@@ -110,6 +110,7 @@ public:
         }
     }
 
+private:
     void render(){
         clearWindow();
 
@@ -124,6 +125,58 @@ public:
     void adjustMove(){
         // TODO:
         // Move View
+    }
+
+    void newWorkSpace(){
+        // TODO: NEW
+    }
+
+    void loadFile(){
+        // TODO: LOAD
+    }
+
+    void saveFile(){
+        // TODO: Save
+    }
+
+    void zoomIn(){
+        // TODO: Zoom In
+    }
+
+    void zoomOut(){
+        // TODO: Zoom out
+    }
+
+    void FillColor(){
+        // TODO: Fill Shape Color
+    }
+
+    void createShape(){
+        // TODO: Create Shape
+    }
+
+    void createRectangle(){
+        // TODO: Create Rectangle
+    }
+
+    void createTriangle(){
+        // TODO: Create Triangle
+    }
+
+    void rotateCW(){
+        // TODO: Rotate ClockWise 90
+    }
+
+    void rotateCCW(){
+        // TODO: Rotate Counter ClockWise 90
+    }
+
+    void Exit(){
+        // TODO: EXIT
+    }
+
+    void pickColor(){
+        // TODO: Make Color Picker
     }
 };
 

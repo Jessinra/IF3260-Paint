@@ -79,7 +79,7 @@ void *readinput(void *thread_id) {
                         buttonType = MouseButtonType::UNKNOWN;
                 }
                 mouseInput.push(MouseInputData(buttonType, event.motion.x, event.motion.y));
-                printf("mouse coordinate %d %d\n", event.motion.x, event.motion.y);
+//                printf("mouse coordinate %d %d\n", event.motion.x, event.motion.y);
                 break;
             case SDL_QUIT:
                 application_running = false;
@@ -182,6 +182,9 @@ private:
 
     void processClick(){
         // TODO: Process Click
+        if(mouseInput.empty()) return;
+
+
     }
 
     void adjustZoom(){

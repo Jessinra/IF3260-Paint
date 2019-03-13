@@ -90,6 +90,11 @@ void *readinput(void *thread_id) {
     pthread_exit(nullptr);
 }
 
+enum AppState{
+    NORMAL,
+    CREATE_SHAPE
+};
+
 class Runner : public Master {
 protected:
     View toolbar, workspace, verticalscroll, horizontalscroll;
@@ -99,9 +104,11 @@ protected:
     MoveableObject workingObject;
     vector<MoveableObject> tools;
     vector<MoveablePlane> *workingShapes;
-    float widthratio;
-    float heightratio;
-    float zoomratio;
+    MoveablePlane tempPlane;
+    float widthratio, heightratio, zoomratio;
+    int focus;
+    unsigned int currentColor;
+    AppState state;
 
 public:
     Runner(int h = WINDOWHEIGHT, int w = WINDOWWIDTH) : Master(h, w) {
@@ -138,6 +145,9 @@ private:
     void preprocess(){
         moveVer = moveHor = zoom = 0;
         zoomratio = 1;
+        state = AppState::NORMAL;
+        focus = -1;
+        currentColor = 0xffffff;
     }
 
     void render(){
@@ -182,9 +192,67 @@ private:
 
     void processClick(){
         // TODO: Process Click
-        if(mouseInput.empty()) return;
+        while(!mouseInput.empty()){
+            MouseInputData mouseClick = mouseInput.front();
+            mouseInput.pop();
+            if(mouseClick.buttonType == MouseButtonType::LEFT_BUTTON){
+                if(toolbar.isInside(mouseClick.position)){
+                    if(mouseClick.position.getY() >= 2 && mouseClick.position.getY() < 38){
+                        int idx = (int)mouseClick.position.getX() / 40;
+                        if(idx >= tools.size()) continue;
+                        if(mouseClick.position.getY() >= idx*40 + 2 && mouseClick.position.getY() < (idx+1)*40 - 2){
+                            switch (idx){
+                                case 1:
 
-
+                                    break;
+                            }
+                            break;
+                        }
+                    }
+                }
+                else if(workspace.isInside(mouseClick.position.getX() - workspace.getRefPos().getX(), mouseClick.position.getY() - workspace.getRefPos().getY())){
+                    if(state == AppState::CREATE_SHAPE){
+                        vector<Line> &lines = tempPlane.getRefLines();
+                        Pixel currPixel = Pixel(mouseClick.position.getX(), mouseClick.position.getY(), currentColor);
+                        if(lines.empty()){
+                            lines.push_back(Line(currPixel, currPixel));
+                        }
+                        else{
+                            Pixel endPixel = lines.back().getRefEndPixel();
+                            Pixel startPixel = lines.back().getRefStartPixel();
+                            lines.pop_back();
+                            lines.push_back(Line(startPixel, currPixel));
+                            lines.push_back(Line(currPixel, endPixel));
+                        }
+                    }
+                    else{
+                        float x = mouseClick.position.getX() - workspace.getConstRefPos().getX() - workingObject.getConstRefPos().getX();
+                        float y = mouseClick.position.getY() - workspace.getConstRefPos().getY() - workingObject.getConstRefPos().getY();
+                        focus = -1;
+                        for(int i=0;i<workingObject.getConstRefPlanes().size();++i){
+                            const MoveablePlane &plane = workingObject.getConstRefPlanes()[i];
+                            if(x >= plane.getConstRefPos().getX() && x < plane.getConstRefPos().getX() + plane.getLowerRight().getX() &&
+                                y >= plane.getConstRefPos().getY() && y < plane.getConstRefPos().getY() + plane.getLowerRight().getY()){
+                                focus = i;
+                                break;
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+            else if(mouseClick.buttonType == MouseButtonType::RIGHT_BUTTON){
+                if(state == AppState::CREATE_SHAPE){
+                    if(!tempPlane.getConstRefLines().empty()){
+                        workingShapes->insert(workingShapes->begin(), tempPlane);
+                        tempPlane.getRefLines().clear();
+                        tempPlane.setPos(0, 0);
+                    }
+                    state = AppState::NORMAL;
+                    break;
+                }
+            }
+        }
     }
 
     void adjustZoom(){

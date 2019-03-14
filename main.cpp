@@ -82,7 +82,7 @@ void *readinput(void *thread_id) {
                         buttonType = MouseButtonType::UNKNOWN;
                 }
                 mouseInput.push(MouseInputData(buttonType, event.motion.x, event.motion.y));
-//                printf("mouse coordinate %d %d\n", event.motion.x, event.motion.y);
+    //                printf("mouse coordinate %d %d\n", event.motion.x, event.motion.y);
                 break;
                 
             case SDL_QUIT:
@@ -416,7 +416,7 @@ private:
         int drawPositionX = mouseClick.position.getX() - 25;
         int drawPositionY = mouseClick.position.getY() - 25;
 
-        MoveableObject tempRectangle = Object(drawPositionX, drawPositionY, "Asset/Shapes/square.txt");
+        MoveableObject tempRectangle = Object(drawPositionX, drawPositionY, "Asset/Shapes/square.txt", currentColor);
         for(MoveablePlane plane : tempRectangle.getPlanes()){
             workingObject.addPlane(plane);
         }
@@ -428,7 +428,7 @@ private:
         int drawPositionX = mouseClick.position.getX() - 25;
         int drawPositionY = mouseClick.position.getY() - 9;
 
-        MoveableObject tempTriangle = Object(drawPositionX, drawPositionY, "Asset/Shapes/triangle.txt");
+        MoveableObject tempTriangle = Object(drawPositionX, drawPositionY, "Asset/Shapes/triangle.txt", currentColor);
         for(MoveablePlane plane : tempTriangle.getPlanes()){
             workingObject.addPlane(plane);
         }

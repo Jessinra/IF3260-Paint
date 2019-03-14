@@ -460,6 +460,12 @@ private:
                 createShape();
                 break;
             case 16:
+                scaleUp();
+                break;
+            case 17:
+                scaleDown();
+                break;
+            case 18:
                 exit();
                 break;
         }
@@ -478,12 +484,10 @@ private:
     }
 
     void zoomIn(){
-        // TODO: Zoom In
         ++zoom;
     }
 
     void zoomOut(){
-        // TODO: Zoom out
         --zoom;
     }
 
@@ -533,6 +537,14 @@ private:
 
     void exit(){
         // TODO: EXIT
+    }
+
+    void scaleUp(){
+        (*workingShapes)[focusedObjectIndex].selfDilate(workspace.getWidth() / 2, workspace.getHeight() / 2, constFactor);
+    }
+
+    void scaleDown(){
+        (*workingShapes)[focusedObjectIndex].selfDilate(workspace.getWidth() / 2, workspace.getHeight() / 2, 1/constFactor);
     }
 
     /* =================================

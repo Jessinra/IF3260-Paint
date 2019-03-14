@@ -212,12 +212,12 @@ const Point &Object::getConstRefPos() const {
     return position;
 }
 
-void Object::writeToFile(ofstream &fileOutput) {
-    fileOutput << this->position.getX() << " ";
-    fileOutput << this->position.getY() << "\n";
+void Object::writeToFile(ofstream &filePosition, ofstream &fileDetail) {
+    filePosition << this->position.getX() << " ";
+    filePosition << this->position.getY() << "\n";
 
-    fileOutput << this->planes.size() << "\n";
+    fileDetail << this->planes.size() << "\n";
     for (MoveablePlane& plane : this->planes) {
-        plane.writeToFile(fileOutput);
+        plane.writeToFile(fileDetail);
     }
 }

@@ -6,6 +6,7 @@
 #include <utility>
 #include <algorithm>
 #include <SDL2/SDL.h>
+#include <stdio.h>
 #include "Master.hpp"
 #include "MoveableObject.hpp"
 #include "Object.hpp"
@@ -531,11 +532,32 @@ private:
     }
 
     void loadFile(){
-        // TODO: LOAD
+        string filename;
+        ifstream filePosition;
+        ifstream fileDetail;
+        int positionX;
+        int positionY;
+
+        cin >> filename;
+
+        filePosition.open("Save/" + filename + "_position.txt");
+
+        filePosition >> dec >> positionX >> positionY;
+        workingObject = Object(positionX, positionY, "Save/" + filename + "_detail.txt");
     }
 
     void saveFile(){
-        // TODO: Save
+        string filename;
+        ofstream fileDetail;
+        ofstream filePosition;
+        
+        cin >> filename;
+        
+
+        filePosition.open("Save/" + filename + "_position.txt", ios::out);
+        fileDetail.open("Save/" + filename + "_detail.txt", ios::out);
+
+        workingObject.writeToFile(filePosition, fileDetail);
     }
 
     void zoomIn(){

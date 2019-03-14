@@ -11,6 +11,7 @@ protected:
 public:
   MoveablePlane(float x, float y, const vector<Line> &lines, int color, int priority);
   MoveablePlane(float x, float y, const Plane &plane);
+  MoveablePlane();
 
   void selfRotate(float pivotX, float pivotY, float theta) override;
   void selfDilate(float pivotX, float pivotY, float scalingConstant) override;

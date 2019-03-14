@@ -23,9 +23,14 @@ class Object
   public:
     Object();
     Object(float x, float y, std::string filename);
+    Object(float x, float y, std::string filename, int color);
 
     void setPos(Point position);
     void setPos(float x, float y);
+    void setPlanes(std::string filename);
+    void setPlanesColor(int color);
+
+    void addPlane(MoveablePlane plane);
 
     void calculate();
 

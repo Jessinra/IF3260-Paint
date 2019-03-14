@@ -24,8 +24,28 @@ Object::Object()
 Object::Object(float x, float y, std::string filename)
 {
     setPos(x, y);
+    setPlanes(filename);
 
-    // initialize lines
+    this->id = gen_random(10);
+
+    calculate();
+    sortPriority();
+}
+
+Object::Object(float x, float y, std::string filename, int planeColor)
+{
+    setPos(x, y);
+    setPlanes(filename);
+    setPlanesColor(planeColor);
+
+    this->id = gen_random(10);
+
+    calculate();
+    sortPriority();
+}
+
+void Object::setPlanes(std::string filename){
+        // initialize lines
     ifstream inFile;
     inFile.open(filename);
 
@@ -69,15 +89,20 @@ Object::Object(float x, float y, std::string filename)
             lines.push_back(line);
         }
 
-        this->planes.emplace_back(MoveablePlane(offsetX, offsetY, lines, planeColor, priority));
+        addPlane(MoveablePlane(offsetX, offsetY, lines, planeColor, priority));
     }
-
-    this->id = gen_random(10);
-
-    calculate();
-    sortPriority();
-
     inFile.close();
+}
+
+void Object::addPlane(MoveablePlane plane){
+    this->planes.emplace_back(plane);
+}
+
+
+void Object::setPlanesColor(int color){
+    for (MoveablePlane plane : this->getRefPlanes()){
+        plane.setColor(color);
+    }
 }
 
 void Object::setPos(Point position)

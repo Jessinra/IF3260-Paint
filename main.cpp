@@ -94,7 +94,9 @@ void *readinput(void *thread_id) {
 
 enum AppState{
     NORMAL,
-    CREATE_SHAPE
+    CREATE_SHAPE,
+    CREATE_RECTANGLE,
+    CREATE_TRIANGLE
 };
 
 class Runner : public Master {
@@ -141,8 +143,6 @@ public:
         workingObject = Object(0, 0, "Asset/object_building.txt");
         workingShapes = &workingObject.getRefPlanes();
 
-
-
         resizeScrollBar();
     }
 
@@ -159,6 +159,11 @@ public:
     }
 
 private:
+
+    /* =================================
+                Gui Section 
+    ================================== */
+
     void preprocess(){
         moveVer = moveHor = zoom = 0;
         zoomratio = 1;
@@ -180,6 +185,10 @@ private:
 
         flush();
     }
+
+    /* =================================
+            Workspace Section 
+    ================================== */
 
     void resizeScrollBar(){
         float widthTotal = max(0.0f, -workingObject.getConstRefPos().getX()) + (workspace.getWidth())
@@ -211,152 +220,6 @@ private:
         horScrollBar.getRefPos().setX(leftOffset / widthTotal * (horizontalscroll.getWidth()));
         verScrollBar.getRefPos().setY(topOffset / heightTotal * (verticalscroll.getHeight()));
     }
-
-    void processClick(){
-        while(!mouseInput.empty()){
-            MouseInputData mouseClick = mouseInput.front();
-            mouseInput.pop();
-
-            if(isLeftClick(mouseClick)){
-                if(mouseInsideToolbar(mouseClick) && mouseInsideToolbox(mouseClick)){
-                    int buttonIdx = getButtonIdx(mouseClick);
-                    if(buttonUndefined(buttonIdx) || !isButtonClicked(mouseClick, buttonIdx)){
-                        continue;
-                    }
-
-                    runButtonFunction(buttonIdx);
-                    break;
-                }
-
-                else if(mouseInsideWorkspace(mouseClick)){
-                    if(state == AppState::CREATE_SHAPE){
-                        drawFreeShape(mouseClick);
-                    }
-                    else{
-                        setFocusOnObject(mouseClick);
-                    }
-                    break;
-                }
-            }
-
-            else if(isRightClick(mouseClick)){
-                if(state == AppState::CREATE_SHAPE){
-                    quitCreateShape(tempPlane);
-                    break;
-                }
-            }
-        }
-    }
-
-    int getButtonIdx(const MouseInputData &mouseClick){
-        return (int) mouseClick.position.getX() / toolbarButtonSize;
-    }
-
-    bool buttonUndefined(int buttonIdx){
-        return buttonIdx >= tools.size();
-    }
-
-    bool isLeftClick(const MouseInputData &mouseClick){
-        return mouseClick.buttonType == MouseButtonType::LEFT_BUTTON;
-    }
-
-    bool isRightClick(const MouseInputData &mouseClick){
-        return mouseClick.buttonType == MouseButtonType::RIGHT_BUTTON;
-    }
-
-    bool mouseInsideToolbar(const MouseInputData &mouseClick){
-        return toolbar.isInside(mouseClick.position);
-    }
-
-    bool mouseInsideToolbox(const MouseInputData &mouseClick){
-        return mouseClick.position.getY() >= 2 && mouseClick.position.getY() < 38;
-    }
-
-    bool isButtonClicked(const MouseInputData &mouseClick, int buttonIdx){
-        return (mouseClick.position.getX() >= buttonIdx * toolbarButtonSize + 2 &&
-                mouseClick.position.getX() < (buttonIdx + 1) * toolbarButtonSize - 2);
-    }
-
-    bool mouseInsideWorkspace(MouseInputData mouseClick){
-        return workspace.isInside(
-            mouseClick.position.getX() - workspace.getRefPos().getX(),
-            mouseClick.position.getY() - workspace.getRefPos().getY());
-    }
-
-    void setFocusOnObject(const MouseInputData &mouseClick){
-        float x = mouseClick.position.getX() - workspace.getConstRefPos().getX() - workingObject.getConstRefPos().getX();
-        float y = mouseClick.position.getY() - workspace.getConstRefPos().getY() - workingObject.getConstRefPos().getY();
-
-        focusedObjectIndex = -1;
-
-        for(int i=0; i<workingObject.getConstRefPlanes().size(); ++i){
-            const MoveablePlane &plane = workingObject.getConstRefPlanes()[i];
-            if(x >= plane.getConstRefPos().getX() && x < plane.getConstRefPos().getX() + plane.getLowerRight().getX() &&
-                y >= plane.getConstRefPos().getY() && y < plane.getConstRefPos().getY() + plane.getLowerRight().getY()){
-                focusedObjectIndex = i;
-                break;
-            }
-        }
-    }
-
-    void runButtonFunction(int buttonIdx){
-        switch (buttonIdx){
-
-            // TODO : implement the function caller ?
-            case 0:
-                newWorkSpace();
-                break;
-            case 1:
-                loadFile();
-                break;
-            case 2:
-                saveFile();
-                break;
-            case 3:
-                zoomIn();
-                break;
-            case 4:
-                zoomOut();
-                break;
-            case 5:
-                panLeft();
-                break;
-            case 6:
-                panTop();
-                break;
-            case 7:
-                panBottom();
-                break;
-            case 8:
-                panRight();
-                break;
-            case 9:
-                rotateCCW();
-                break;
-            case 10:
-                rotateCW();
-                break;
-            case 11:
-                pickColor();
-                break;
-            case 12:
-                fillColor();
-                break;
-            case 13:
-                createTriangle();
-                break;
-            case 14:
-                createRectangle();
-                break;
-            case 15:
-                createShape();
-                break;
-            case 16:
-                exit);
-                break;
-        }
-    }
-
 
     void adjustZoom(){
         if(zoom != 0){
@@ -432,6 +295,176 @@ private:
         }
     }
 
+    void exitDrawState(){
+        state = AppState::NORMAL;
+    }
+
+    /* =================================
+                Mouse Section 
+    ================================== */
+
+    void processClick(){
+        while(!mouseInput.empty()){
+            MouseInputData mouseClick = mouseInput.front();
+            mouseInput.pop();
+
+            if(isLeftClick(mouseClick)){
+                if(mouseInsideToolbar(mouseClick) && mouseInsideToolbox(mouseClick)){
+                    int buttonIdx = getClickedButtonIdx(mouseClick);
+                    
+                    if(buttonUndefined(buttonIdx) || !isButtonClicked(mouseClick, buttonIdx)){
+                        continue;
+                    }
+                    runButtonFunction(buttonIdx);
+                    break;
+                }
+
+                else if(mouseInsideWorkspace(mouseClick)){
+
+                    if(state == AppState::CREATE_SHAPE){
+                        drawFreeShape(mouseClick);
+                    }
+                    else if(state == AppState::CREATE_RECTANGLE){
+                        drawRectangle(mouseClick);
+                    }
+                    else if(state == AppState::CREATE_TRIANGLE){
+                        drawTriangle(mouseClick);
+                    }
+                    else{
+                        setFocusOnObject(mouseClick);
+                    }
+                    break;
+                }
+            }
+
+            else if(isRightClick(mouseClick)){
+                if(state == AppState::CREATE_SHAPE){
+                    quitCreateShape();
+                }
+                else{
+                    exitDrawState();
+                }
+            }
+        }
+    }
+
+    bool isLeftClick(const MouseInputData &mouseClick){
+        return mouseClick.buttonType == MouseButtonType::LEFT_BUTTON;
+    }
+
+    bool isRightClick(const MouseInputData &mouseClick){
+        return mouseClick.buttonType == MouseButtonType::RIGHT_BUTTON;
+    }
+
+    bool mouseInsideWorkspace(MouseInputData mouseClick){
+        return workspace.isInside(
+            mouseClick.position.getX() - workspace.getRefPos().getX(),
+            mouseClick.position.getY() - workspace.getRefPos().getY());
+    }
+
+    bool mouseInsideToolbar(const MouseInputData &mouseClick){
+        return toolbar.isInside(mouseClick.position);
+    }
+
+    bool mouseInsideToolbox(const MouseInputData &mouseClick){
+        return mouseClick.position.getY() >= 2 && mouseClick.position.getY() < 38;
+    }
+
+    void setFocusOnObject(const MouseInputData &mouseClick){
+        float x = mouseClick.position.getX() - workspace.getConstRefPos().getX() - workingObject.getConstRefPos().getX();
+        float y = mouseClick.position.getY() - workspace.getConstRefPos().getY() - workingObject.getConstRefPos().getY();
+
+        focusedObjectIndex = -1;
+
+        for(int i=0; i<workingObject.getConstRefPlanes().size(); ++i){
+            const MoveablePlane &plane = workingObject.getConstRefPlanes()[i];
+            if(x >= plane.getConstRefPos().getX() && x < plane.getConstRefPos().getX() + plane.getLowerRight().getX() &&
+                y >= plane.getConstRefPos().getY() && y < plane.getConstRefPos().getY() + plane.getLowerRight().getY()){
+                focusedObjectIndex = i;
+                break;
+            }
+        }
+    }
+
+    int getClickedButtonIdx(const MouseInputData &mouseClick){
+        return (int) mouseClick.position.getX() / toolbarButtonSize;
+    }
+
+    /* =================================
+                Button Section 
+    ================================== */
+    
+    bool isButtonClicked(const MouseInputData &mouseClick, int buttonIdx){
+        return (mouseClick.position.getX() >= buttonIdx * toolbarButtonSize + 2 &&
+                mouseClick.position.getX() < (buttonIdx + 1) * toolbarButtonSize - 2);
+    }
+
+    bool buttonUndefined(int buttonIdx){
+        return buttonIdx >= tools.size();
+    }
+
+    /* =================================
+                Callback Section 
+    ================================== */
+
+    void runButtonFunction(int buttonIdx){
+        switch (buttonIdx){
+
+            // TODO : implement the function caller ?
+            case 0:
+                newWorkSpace();
+                break;
+            case 1:
+                loadFile();
+                break;
+            case 2:
+                saveFile();
+                break;
+            case 3:
+                zoomIn();
+                break;
+            case 4:
+                zoomOut();
+                break;
+            case 5:
+                panLeft();
+                break;
+            case 6:
+                panTop();
+                break;
+            case 7:
+                panBottom();
+                break;
+            case 8:
+                panRight();
+                break;
+            case 9:
+                rotateCCW();
+                break;
+            case 10:
+                rotateCW();
+                break;
+            case 11:
+                pickColor();
+                break;
+            case 12:
+                fillColor();
+                break;
+            case 13:
+                createTriangle();
+                break;
+            case 14:
+                createRectangle();
+                break;
+            case 15:
+                createShape();
+                break;
+            case 16:
+                exit();
+                break;
+        }
+    }
+
     void newWorkSpace(){
         // TODO: NEW
     }
@@ -454,36 +487,8 @@ private:
         --zoom;
     }
 
-    void pickColor(){
-        // TODO: Pick Color From STDIN
-    }
-
-    void fillColor(){
-        // TODO: Fill Shape Color
-    }
-
-    void createShape(){
-        state = AppState::CREATE_SHAPE;
-    }
-
-    void rotateCW(){
-        // TODO: Rotate ClockWise 90
-    }
-
-    void rotateCCW(){
-        // TODO: Rotate Counter ClockWise 90
-    }
-
-    void exit(){
-        // TODO: EXIT
-    }
-
     void panLeft(){
         ++moveHor;
-    }
-
-    void panRight(){
-        --moveHor;
     }
 
     void panTop(){
@@ -493,6 +498,46 @@ private:
     void panBottom(){
         --moveVer;
     }
+
+    void panRight(){
+        --moveHor;
+    }
+
+    void rotateCCW(){
+        // TODO: Rotate Counter ClockWise 90
+    }
+
+    void rotateCW(){
+        // TODO: Rotate ClockWise 90
+    }
+
+    void pickColor(){
+        // TODO: Pick Color From STDIN
+    }
+
+    void fillColor(){
+        // TODO: Fill Shape Color
+    }
+
+    void createTriangle(){
+        state = AppState::CREATE_TRIANGLE;
+    }
+
+    void createRectangle(){
+        state = AppState::CREATE_RECTANGLE;
+    }
+
+    void createShape(){
+        state = AppState::CREATE_SHAPE;
+    }
+
+    void exit(){
+        // TODO: EXIT
+    }
+
+    /* =================================
+            Feature Section 
+    ================================== */
 
     void drawFreeShape(MouseInputData mouseClick){
 
@@ -514,16 +559,16 @@ private:
         }
     }
 
-    void quitCreateShape(MoveablePlane tempPlane){
+    void quitCreateShape(){
         if(!tempPlane.getConstRefLines().empty()){
             workingShapes->insert(workingShapes->begin(), tempPlane);
             tempPlane.getRefLines().clear();
             tempPlane.setPos(0, 0);
         }
-        state = AppState::NORMAL;
+        exitDrawState();
     }
 
-    void createRectangle(MouseInputData mouseClick){
+    void drawRectangle(MouseInputData mouseClick){
         int drawPositionX = mouseClick.position.getX() - workspace.getConstRefPos().getX() - 25;
         int drawPositionY = mouseClick.position.getY() - workspace.getConstRefPos().getY() - 25;
 
@@ -533,7 +578,7 @@ private:
         }
     }
 
-    void createTriangle(MouseInputData mouseClick){
+    void drawTriangle(MouseInputData mouseClick){
         int drawPositionX = mouseClick.position.getX() - workspace.getConstRefPos().getX() - 25;
         int drawPositionY = mouseClick.position.getY() - workspace.getConstRefPos().getY() - 9;
 

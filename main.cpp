@@ -32,7 +32,6 @@ void *readinput(void *thread_id) {
         SDL_WaitEvent(&event);
         switch (event.type){
             case SDL_KEYDOWN:
-
                 switch(event.key.keysym.sym){
                     case SDLK_w:
                     case SDLK_UP:
@@ -70,7 +69,6 @@ void *readinput(void *thread_id) {
                 break;
 
             case SDL_MOUSEBUTTONDOWN:
-
                 switch(event.key.keysym.sym){
                     case SDL_BUTTON_LEFT:
                         buttonType = MouseButtonType::LEFT_BUTTON;
@@ -143,6 +141,8 @@ public:
         workingObject = Object(0, 0, "Asset/object_building.txt");
         workingShapes = &workingObject.getRefPlanes();
 
+
+
         resizeScrollBar();
     }
 
@@ -184,45 +184,36 @@ private:
     void resizeScrollBar(){
         float widthTotal = max(0.0f, -workingObject.getConstRefPos().getX()) + (workspace.getWidth())
                 + max(0.0f, workingObject.getConstRefPos().getX() + workingObject.getLowerRight().getX()
-                           - (workspace.getConstRefPos().getX() + workspace.getConstRefBox().getXMax()));
+                           - (workspace.getConstRefBox().getXMax()));
         widthratio = 1.0f * (horizontalscroll.getWidth()) / widthTotal;
         horScrollBar = scrollbar;
         horScrollBar.selfStretchX(0, 0, widthratio * (1.0f*horizontalscroll.getWidth() / (horScrollBar.getWidth() - 1)));
 
-        float heightTotal = max(0.0f, -workingObject.getConstRefPos().getY()) + (workspace.getHeight() + 1)
+        float heightTotal = max(0.0f, -workingObject.getConstRefPos().getY()) + (workspace.getHeight())
                 + max(0.0f, workingObject.getConstRefPos().getY() + workingObject.getLowerRight().getY()
-                           - (workspace.getConstRefPos().getY() + workspace.getConstRefBox().getYMax()));
-        heightratio = 1.0f * (verticalscroll.getHeight() + 1) / heightTotal;
+                           - (workspace.getConstRefBox().getYMax()));
+        heightratio = 1.0f * (verticalscroll.getHeight()) / heightTotal;
         verScrollBar = scrollbar;
         verScrollBar.selfStretchY(0, 0, heightratio * (1.0f*verticalscroll.getHeight() / (verScrollBar.getHeight() - 1)));
-
-//        cerr<<"ratio "<<widthratio<<" "<<heightratio<<endl;
-//        cerr<<"len "<<widthTotal<<" "<<(workingObject.getWidth() + 1)<<" "<<heightTotal<<" "<<(workingObject.getHeight() + 1)<<endl;
-//        cerr<<horScrollBar.getWidth()<<" "<<verScrollBar.getHeight()<<endl;
-//        cerr<<workingObject.getWidth()<<" "<<workingObject.getHeight()<<endl;
-//        cerr<<workspace.getWidth()<<" "<<workspace.getHeight()<<endl;
 
         reposScrollBar();
     }
 
     void reposScrollBar(){
-        float widthTotal = max(0.0f, -workingObject.getConstRefPos().getX()) + (workingObject.getWidth() + 1)
+        float widthTotal = max(0.0f, -workingObject.getConstRefPos().getX()) + (workspace.getWidth())
                            + max(0.0f, workingObject.getConstRefPos().getX() + workingObject.getLowerRight().getX()
-                                       - (workspace.getConstRefPos().getX() + workspace.getConstRefBox().getXMax()));
+                                       - (workspace.getConstRefBox().getXMax()));
         float leftOffset = max(0.0f, -workingObject.getConstRefPos().getX());
-        float heightTotal = max(0.0f, -workingObject.getConstRefPos().getY()) + (workingObject.getHeight() + 1)
+        float heightTotal = max(0.0f, -workingObject.getConstRefPos().getY()) + (workspace.getHeight())
                             + max(0.0f, workingObject.getConstRefPos().getY() + workingObject.getLowerRight().getY()
-                                        - (workspace.getConstRefPos().getY() + workspace.getConstRefBox().getYMax()));
+                                        - (workspace.getConstRefBox().getYMax()));
         float topOffset = max(0.0f, -workingObject.getConstRefPos().getY());
         horScrollBar.getRefPos().setX(leftOffset / widthTotal * (horizontalscroll.getWidth()));
         verScrollBar.getRefPos().setY(topOffset / heightTotal * (verticalscroll.getHeight()));
-//        cerr<<horScrollBar.getRefPos().getX()<<" "<<verScrollBar.getRefPos().getY()<<endl;
     }
 
     void processClick(){
-        // TODO: Process Click
         while(!mouseInput.empty()){
-
             MouseInputData mouseClick = mouseInput.front();
             mouseInput.pop();
 
@@ -257,7 +248,7 @@ private:
         }
     }
 
-    int getButtonIdx(MouseInputData mouseClick){
+    int getButtonIdx(const MouseInputData &mouseClick){
         return (int) mouseClick.position.getX() / toolbarButtonSize;
     }
 
@@ -265,23 +256,23 @@ private:
         return buttonIdx >= tools.size();
     }
 
-    bool isLeftClick(MouseInputData mouseClick){
+    bool isLeftClick(const MouseInputData &mouseClick){
         return mouseClick.buttonType == MouseButtonType::LEFT_BUTTON;
     }
 
-    bool isRightClick(MouseInputData mouseClick){
+    bool isRightClick(const MouseInputData &mouseClick){
         return mouseClick.buttonType == MouseButtonType::RIGHT_BUTTON;
     }
 
-    bool mouseInsideToolbar(MouseInputData mouseClick){
+    bool mouseInsideToolbar(const MouseInputData &mouseClick){
         return toolbar.isInside(mouseClick.position);
     }
 
-    bool mouseInsideToolbox(MouseInputData mouseClick){
+    bool mouseInsideToolbox(const MouseInputData &mouseClick){
         return mouseClick.position.getY() >= 2 && mouseClick.position.getY() < 38;
     }
 
-    bool isButtonClicked(MouseInputData mouseClick, int buttonIdx){
+    bool isButtonClicked(const MouseInputData &mouseClick, int buttonIdx){
         return (mouseClick.position.getX() >= buttonIdx * toolbarButtonSize + 2 &&
                 mouseClick.position.getX() < (buttonIdx + 1) * toolbarButtonSize - 2);
     }
@@ -292,7 +283,7 @@ private:
             mouseClick.position.getY() - workspace.getRefPos().getY());
     }
 
-    void setFocusOnObject(MouseInputData mouseClick){
+    void setFocusOnObject(const MouseInputData &mouseClick){
         float x = mouseClick.position.getX() - workspace.getConstRefPos().getX() - workingObject.getConstRefPos().getX();
         float y = mouseClick.position.getY() - workspace.getConstRefPos().getY() - workingObject.getConstRefPos().getY();
 
@@ -309,7 +300,6 @@ private:
     }
 
     void runButtonFunction(int buttonIdx){
-                        
         switch (buttonIdx){
 
             // TODO : implement the function caller ? 

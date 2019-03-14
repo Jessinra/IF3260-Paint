@@ -116,7 +116,7 @@ protected:
     /* =================================
                 Config Section 
     ================================== */
-    int toolbarButtonSize = 40;
+    const int toolbarButtonSize = 40;
 
     /* =================================
                 Selector Section 
@@ -155,7 +155,6 @@ public:
             adjustMove();
 
             usleep(6000);
-        //            application_running = false;
         }
     }
 
@@ -216,11 +215,9 @@ private:
             mouseInput.pop();
 
             if(isLeftClick(mouseClick)){
-                
                 if(mouseInsideToolbar(mouseClick) && mouseInsideToolbox(mouseClick)){
-
                     int buttonIdx = getButtonIdx(mouseClick);
-                    if(buttonUndefined(buttonIdx)){
+                    if(buttonUndefined(buttonIdx) || !isButtonClicked(mouseClick, buttonIdx)){
                         continue;
                     }
 
@@ -273,8 +270,8 @@ private:
     }
 
     bool isButtonClicked(MouseInputData mouseClick, int buttonIdx){
-        return (mouseClick.position.getY() >= buttonIdx * toolbarButtonSize + 2 &&
-                mouseClick.position.getY() < (buttonIdx + 1) * toolbarButtonSize - 2);
+        return (mouseClick.position.getX() >= buttonIdx * toolbarButtonSize + 2 &&
+                mouseClick.position.getX() < (buttonIdx + 1) * toolbarButtonSize - 2);
     }
 
     bool mouseInsideWorkspace(MouseInputData mouseClick){
@@ -284,14 +281,12 @@ private:
     }
 
     void setFocusOnObject(MouseInputData mouseClick){
-
         float x = mouseClick.position.getX() - workspace.getConstRefPos().getX() - workingObject.getConstRefPos().getX();
         float y = mouseClick.position.getY() - workspace.getConstRefPos().getY() - workingObject.getConstRefPos().getY();
 
         focusedObjectIndex = -1;
 
         for(int i=0; i<workingObject.getConstRefPlanes().size(); ++i){
-
             const MoveablePlane &plane = workingObject.getConstRefPlanes()[i];
             if(x >= plane.getConstRefPos().getX() && x < plane.getConstRefPos().getX() + plane.getLowerRight().getX() &&
                 y >= plane.getConstRefPos().getY() && y < plane.getConstRefPos().getY() + plane.getLowerRight().getY()){
@@ -403,7 +398,11 @@ private:
         // TODO: Zoom out
     }
 
-    void FillColor(){
+    void pickColor(){
+        // TODO: Pick Color From STDIN
+    }
+
+    void fillColor(){
         // TODO: Fill Shape Color
     }
 
@@ -441,10 +440,8 @@ private:
     }
 
     void createRectangle(MouseInputData mouseClick){
-
-        // TODO : need offset or adjustment ??
-        int drawPositionX = mouseClick.position.getX() - 25;
-        int drawPositionY = mouseClick.position.getY() - 25;
+        int drawPositionX = mouseClick.position.getX() - workspace.getConstRefPos().getX() - 25;
+        int drawPositionY = mouseClick.position.getY() - workspace.getConstRefPos().getY() - 25;
 
         MoveableObject tempRectangle = Object(drawPositionX, drawPositionY, "Asset/Shapes/square.txt", currentColor);
         for(MoveablePlane plane : tempRectangle.getPlanes()){
@@ -453,10 +450,8 @@ private:
     }
 
     void createTriangle(MouseInputData mouseClick){
-
-        // TODO : need offset or adjustment ??
-        int drawPositionX = mouseClick.position.getX() - 25;
-        int drawPositionY = mouseClick.position.getY() - 9;
+        int drawPositionX = mouseClick.position.getX() - workspace.getConstRefPos().getX() - 25;
+        int drawPositionY = mouseClick.position.getY() - workspace.getConstRefPos().getY() - 9;
 
         MoveableObject tempTriangle = Object(drawPositionX, drawPositionY, "Asset/Shapes/triangle.txt", currentColor);
         for(MoveablePlane plane : tempTriangle.getPlanes()){
@@ -474,10 +469,6 @@ private:
 
     void Exit(){
         // TODO: EXIT
-    }
-
-    void pickColor(){
-        // TODO: Make Color Picker
     }
 
     void panLeft(){

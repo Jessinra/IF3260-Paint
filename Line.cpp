@@ -45,3 +45,12 @@ const Pixel &Line::getRefEndPixel() const
 {
     return this->endPixel;
 }
+
+void Line::writeToFile(ofstream &fileOutput) {
+    fileOutput << setfill('0') << setw(3) << this->startPixel.getX() << " ";
+    fileOutput << setfill('0') << setw(3) << this->startPixel.getY() << " ";
+    fileOutput << "0x" << hex << this->startPixel.getColor() << " ";
+    fileOutput << setfill('0') << setw(3) << this->endPixel.getX() << " ";
+    fileOutput << setfill('0') << setw(3) << this->endPixel.getY() << " ";
+    fileOutput << "0x" << hex << this->endPixel.getColor() << "\n";
+}

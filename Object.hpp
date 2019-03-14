@@ -5,6 +5,8 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include <stdio.h>
+#include <iomanip>
 
 #include "Plane.hpp"
 #include "MoveablePlane.hpp"
@@ -52,6 +54,8 @@ class Object
 
     void reverseHorizontal(); // TODO
     bool outOfWindow(int height, int width) const;
+
+    void writeToFile(ofstream &fileOutput);
 };
 
 #endif

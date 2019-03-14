@@ -159,3 +159,17 @@ Plane::Plane() {
     xMin = xMax = yMin = yMax = 0;
 }
 
+void Plane::writeToFile(ofstream &fileOutput) {
+    fileOutput << dec << this->lines.size() << " ";
+    fileOutput << "0x" << hex << this->getColor() << " ";
+    fileOutput << this->getPriority() << " ";
+    fileOutput << setfill('0') << setw(3) << this->getPos().getX() << " ";
+    fileOutput << setfill('0') << setw(3) << this->getPos().getY() << "\n";
+
+    for(Line &line : this->lines) {
+        line.writeToFile(fileOutput);
+    }
+
+    fileOutput << "\n";
+}
+

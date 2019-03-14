@@ -2,6 +2,10 @@
 #define LINE_HPP
 
 #include <cmath>
+#include <fstream>
+#include <iostream>
+#include <stdio.h>
+#include <iomanip>
 
 #include "Pixel.hpp"
 using namespace std;
@@ -24,6 +28,8 @@ class Line
     unsigned int getEndColor() const;
     const Pixel &getRefStartPixel() const;
     const Pixel &getRefEndPixel() const;
+
+    void writeToFile(ofstream &fileOutput);
 };
 
 #endif

@@ -212,18 +212,7 @@ private:
                 }
                 else if(workspace.isInside(mouseClick.position.getX() - workspace.getRefPos().getX(), mouseClick.position.getY() - workspace.getRefPos().getY())){
                     if(state == AppState::CREATE_SHAPE){
-                        vector<Line> &lines = tempPlane.getRefLines();
-                        Pixel currPixel = Pixel(mouseClick.position.getX(), mouseClick.position.getY(), currentColor);
-                        if(lines.empty()){
-                            lines.push_back(Line(currPixel, currPixel));
-                        }
-                        else{
-                            Pixel endPixel = lines.back().getRefEndPixel();
-                            Pixel startPixel = lines.back().getRefStartPixel();
-                            lines.pop_back();
-                            lines.push_back(Line(startPixel, currPixel));
-                            lines.push_back(Line(currPixel, endPixel));
-                        }
+                        createShape(mouseClick.position);
                     }
                     else{
                         float x = mouseClick.position.getX() - workspace.getConstRefPos().getX() - workingObject.getConstRefPos().getX();
@@ -350,8 +339,19 @@ private:
         // TODO: Fill Shape Color
     }
 
-    void createShape(){
-        // TODO: Create Shape
+    void createShape(Point position){
+        vector<Line> &lines = tempPlane.getRefLines();
+        Pixel currPixel = Pixel(position.getX(), position.getY(), currentColor);
+        if(lines.empty()){
+            lines.push_back(Line(currPixel, currPixel));
+        }
+        else{
+            Pixel endPixel = lines.back().getRefEndPixel();
+            Pixel startPixel = lines.back().getRefStartPixel();
+            lines.pop_back();
+            lines.push_back(Line(startPixel, currPixel));
+            lines.push_back(Line(currPixel, endPixel));
+        }
     }
 
     void createRectangle(){

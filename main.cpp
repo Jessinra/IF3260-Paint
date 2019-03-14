@@ -145,6 +145,28 @@ public:
         workingObject = Object(0, 0, "Asset/object_building.txt");
         workingShapes = &workingObject.getRefPlanes();
 
+        tools.push_back(Object(0, 0, "Asset/icon_new.txt"));
+        tools.push_back(Object(40, 0, "Asset/icon_load.txt"));
+        tools.push_back(Object(80, 0, "Asset/icon_save.txt"));
+        tools.push_back(Object(120, 0, "Asset/icon_zoom_in.txt"));
+        tools.push_back(Object(160, 0, "Asset/icon_zoom_out.txt"));
+        tools.push_back(Object(200, 0, "Asset/icon_pan_left.txt"));
+        tools.push_back(Object(240, 0, "Asset/icon_pan_up.txt"));
+        tools.push_back(Object(280, 0, "Asset/icon_pan_down.txt"));
+        tools.push_back(Object(320, 0, "Asset/icon_pan_right.txt"));
+        tools.push_back(Object(360, 0, "Asset/icon_rotate_ccw.txt"));
+        tools.push_back(Object(400, 0, "Asset/icon_rotate_cw.txt"));
+        // here pick color
+        // here fill color
+        tools.push_back(Object(440, 0, "Asset/icon_shape_triangle.txt"));
+        tools.push_back(Object(480, 0, "Asset/icon_shape_square.txt"));
+        tools.push_back(Object(520, 0, "Asset/icon_shape.txt"));
+        tools.push_back(Object(560, 0, "Asset/icon_scale_up.txt"));
+        tools.push_back(Object(600, 0, "Asset/icon_scale_down.txt"));
+        tools.push_back(Object(640, 0, "Asset/icon_trash.txt"));
+        tools.push_back(Object(680, 0, "Asset/icon_color.txt"));
+        tools.push_back(Object(720, 0, "Asset/icon_exit.txt"));
+
         resizeScrollBar();
     }
 
@@ -157,6 +179,7 @@ public:
             adjustMove();
 
             usleep(6000);
+//            application_running = false;
         }
     }
 
@@ -177,6 +200,10 @@ private:
     void render(){
         clearWindow();
 
+        for(const Object obj : tools){
+//            cerr<<obj.getConstRefPos().getX()<<" "<<obj.getConstRefPos().getY()<<endl;
+            drawSolidObject(toolbar, obj);
+        }
         drawSolidObject(toolbar, backgroundToolbar);
         drawSolidObject(verticalscroll, verScrollBar);
         drawSolidObject(verticalscroll, backgroundVerScroll);
@@ -193,13 +220,19 @@ private:
     ================================== */
 
     void resizeScrollBar(){
-        widthratio = max(1.0f * workingObject.getWidth() / (workspace.getWidth() + 1), 1.0f);
+        float widthTotal = max(0.0f, -workingObject.getConstRefPos().getX()) + (workspace.getWidth())
+                           + max(0.0f, workingObject.getConstRefPos().getX() + workingObject.getLowerRight().getX()
+                                       - (workspace.getConstRefPos().getX() + workspace.getConstRefBox().getXMax()));
+        widthratio = 1.0f * (horizontalscroll.getWidth()) / widthTotal;
         horScrollBar = scrollbar;
-        horScrollBar.selfStretchX(0, 0, 1/widthratio * (1.0f*(horizontalscroll.getWidth() + 1) / horScrollBar.getWidth()));
+        horScrollBar.selfStretchX(0, 0, widthratio * (1.0f*horizontalscroll.getWidth() / (horScrollBar.getWidth() - 1)));
 
-        heightratio = max(1.0f * (workingObject.getHeight()-1) / workspace.getHeight(), 1.0f);
+        float heightTotal = max(0.0f, -workingObject.getConstRefPos().getY()) + (workspace.getHeight() + 1)
+                            + max(0.0f, workingObject.getConstRefPos().getY() + workingObject.getLowerRight().getY()
+                                        - (workspace.getConstRefPos().getY() + workspace.getConstRefBox().getYMax()));
+        heightratio = 1.0f * (verticalscroll.getHeight() + 1) / heightTotal;
         verScrollBar = scrollbar;
-        verScrollBar.selfStretchY(0, 0, 1/heightratio * (1.0f*(verticalscroll.getHeight() + 1) / verScrollBar.getHeight()));
+        verScrollBar.selfStretchY(0, 0, heightratio * (1.0f*verticalscroll.getHeight() / (verScrollBar.getHeight() - 1)));
 
         cerr<<"ratio "<<widthratio<<" "<<heightratio<<endl;
         cerr<<horScrollBar.getWidth()<<" "<<verScrollBar.getHeight()<<endl;
@@ -210,12 +243,17 @@ private:
     }
 
     void reposScrollBar(){
-        if(widthratio > 1){
-            horScrollBar.getRefPos().setX(max(0.0f, (-workingObject.getConstRefPos().getX()) / ((workingObject.getWidth()-1) - workspace.getWidth()) *(horizontalscroll.getWidth() - (horScrollBar.getWidth() - 1))));
-        }
-        if(heightratio > 1){
-            verScrollBar.getRefPos().setY(max(0.0f, (-workingObject.getConstRefPos().getY()) / ((workingObject.getHeight()-1) - workspace.getHeight()) *(verticalscroll.getHeight() - (verScrollBar.getHeight() - 1))));
-        }
+        float widthTotal = max(0.0f, -workingObject.getConstRefPos().getX()) + (workingObject.getWidth() + 1)
+                           + max(0.0f, workingObject.getConstRefPos().getX() + workingObject.getLowerRight().getX()
+                                       - (workspace.getConstRefPos().getX() + workspace.getConstRefBox().getXMax()));
+        float leftOffset = max(0.0f, -workingObject.getConstRefPos().getX());
+        float heightTotal = max(0.0f, -workingObject.getConstRefPos().getY()) + (workingObject.getHeight() + 1)
+                            + max(0.0f, workingObject.getConstRefPos().getY() + workingObject.getLowerRight().getY()
+                                        - (workspace.getConstRefPos().getY() + workspace.getConstRefBox().getYMax()));
+        float topOffset = max(0.0f, -workingObject.getConstRefPos().getY());
+        horScrollBar.getRefPos().setX(leftOffset / widthTotal * (horizontalscroll.getWidth()));
+        verScrollBar.getRefPos().setY(topOffset / heightTotal * (verticalscroll.getHeight()));
+
     }
 
     void adjustZoom(){
@@ -251,6 +289,7 @@ private:
                 if(workingObject.getConstRefPos().getX() < 0){
                     workingObject.getRefPos().setX(min(workingObject.getConstRefPos().getX() + speed, 0.0f));
                     --moveHor;
+                    resizeScrollBar();
                 }
                 else{
                     moveHor = 0;
@@ -260,6 +299,7 @@ private:
                 if(workingObject.getConstRefPos().getX() + workingObject.getLowerRight().getX() >= workspace.getConstRefBox().getXMax()){
                     workingObject.getRefPos().setX(max(workingObject.getConstRefPos().getX() - speed, (float)min(workspace.getWidth() - workingObject.getWidth(), 0)));
                     ++moveHor;
+                    resizeScrollBar();
                 }
                 else{
                     moveHor = 0;
@@ -271,6 +311,7 @@ private:
                 if(workingObject.getConstRefPos().getY() < 0){
                     workingObject.getRefPos().setY(min(workingObject.getConstRefPos().getY() + speed, 0.0f));
                     --moveVer;
+                    resizeScrollBar();
                 }
                 else{
                     moveVer = 0;
@@ -280,6 +321,7 @@ private:
                 if(workingObject.getConstRefPos().getY() + workingObject.getLowerRight().getY() >= workspace.getConstRefBox().getYMax()){
                     workingObject.getRefPos().setY(max(workingObject.getConstRefPos().getY() - speed, (float)min(workspace.getHeight() - workingObject.getHeight(), 0)));
                     ++moveVer;
+                    resizeScrollBar();
                 }
                 else{
                     moveVer = 0;
@@ -574,22 +616,22 @@ private:
         exitDrawState();
     }
 
-    void drawRectangle(MouseInputData mouseClick){
+    void drawRectangle(const MouseInputData &mouseClick){
         int drawPositionX = mouseClick.position.getX() - workspace.getConstRefPos().getX() - 25;
         int drawPositionY = mouseClick.position.getY() - workspace.getConstRefPos().getY() - 25;
 
         MoveableObject tempRectangle = Object(drawPositionX, drawPositionY, "Asset/Shapes/square.txt", currentColor);
-        for(MoveablePlane plane : tempRectangle.getPlanes()){
+        for(const MoveablePlane &plane : tempRectangle.getPlanes()){
             workingObject.addPlane(plane);
         }
     }
 
-    void drawTriangle(MouseInputData mouseClick){
+    void drawTriangle(const MouseInputData &mouseClick){
         int drawPositionX = mouseClick.position.getX() - workspace.getConstRefPos().getX() - 25;
         int drawPositionY = mouseClick.position.getY() - workspace.getConstRefPos().getY() - 9;
 
         MoveableObject tempTriangle = Object(drawPositionX, drawPositionY, "Asset/Shapes/triangle.txt", currentColor);
-        for(MoveablePlane plane : tempTriangle.getPlanes()){
+        for(const MoveablePlane &plane : tempTriangle.getPlanes()){
             workingObject.addPlane(plane);
         }
     }

@@ -58,14 +58,30 @@ void *readinput(void *thread_id) {
 
 class Runner : public Master {
 protected:
-    vector<MoveableObject> v;
+    vector<MoveableObject> tools;
 public:
     Runner(int h = 700, int w = 1000) : Master(h, w) {
-        v.push_back(Object(0, 0, "Asset/icon_triangle.txt"));
-        v.push_back(Object(50, 0, "Asset/icon_rectangle.txt"));
-        v.push_back(Object(0, 50, "Asset/icon_rotate.txt"));
-        v.push_back(Object(50, 50, "Asset/icon_zoom_out.txt"));
-        v.push_back(Object(100, 50, "Asset/icon_zoom_in.txt"));
+        tools.push_back(Object(0, 0, "Asset/icon_new.txt"));
+        tools.push_back(Object(40, 0, "Asset/icon_load.txt"));
+        tools.push_back(Object(80, 0, "Asset/icon_save.txt"));
+        tools.push_back(Object(120, 0, "Asset/icon_zoom_in.txt"));
+        tools.push_back(Object(160, 0, "Asset/icon_zoom_out.txt"));
+        tools.push_back(Object(200, 0, "Asset/icon_pan_left.txt"));
+        tools.push_back(Object(240, 0, "Asset/icon_pan_up.txt"));
+        tools.push_back(Object(280, 0, "Asset/icon_pan_down.txt"));
+        tools.push_back(Object(320, 0, "Asset/icon_pan_right.txt"));
+        tools.push_back(Object(360, 0, "Asset/icon_rotate_ccw.txt"));
+        tools.push_back(Object(400, 0, "Asset/icon_rotate_cw.txt"));
+        // here pick color
+        // here fill color
+        tools.push_back(Object(440, 0, "Asset/icon_shape_triangle.txt"));
+        tools.push_back(Object(480, 0, "Asset/icon_shape_square.txt"));
+        tools.push_back(Object(520, 0, "Asset/icon_shape.txt"));
+        tools.push_back(Object(560, 0, "Asset/icon_scale_up.txt"));
+        tools.push_back(Object(600, 0, "Asset/icon_scale_down.txt"));
+        tools.push_back(Object(640, 0, "Asset/icon_trash.txt"));
+        tools.push_back(Object(680, 0, "Asset/icon_color.txt"));
+        tools.push_back(Object(720, 0, "Asset/icon_exit.txt"));
     }
 
     void start() {
@@ -73,7 +89,7 @@ public:
         while(application_running){
             clearWindow();
 
-            for(const Object &x : v){
+            for(const Object &x : tools ){
                 drawSolidObject(x);
             }
 

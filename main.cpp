@@ -228,7 +228,7 @@ private:
 
                 else if(mouseInsideWorkspace(mouseClick)){
                     if(state == AppState::CREATE_SHAPE){
-                        tempPlane = drawFreeShape(mouseClick);
+                        drawFreeShape(mouseClick);
                     }
                     else{
                         setFocusOnObject(mouseClick);
@@ -381,7 +381,7 @@ private:
         state = AppState::CREATE_SHAPE;
     }
 
-    MoveablePlane drawFreeShape(MouseInputData mouseClick){
+    void drawFreeShape(MouseInputData mouseClick){
 
         int drawPositionX = mouseClick.position.getX();
         int drawPositionY = mouseClick.position.getY();

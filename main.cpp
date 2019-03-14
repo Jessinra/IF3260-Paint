@@ -509,23 +509,30 @@ private:
     }
 
     void loadFile(){
+        string filename;
         ifstream filePosition;
         ifstream fileDetail;
-
         int positionX;
         int positionY;
 
-        filePosition.open("Save/object_position.txt");
+        cin >> filename;
+
+        filePosition.open("Save/" + filename + "_position.txt");
 
         filePosition >> dec >> positionX >> positionY;
-        workingObject = Object(positionX, positionY, "Save/object_detail.txt");
+        workingObject = Object(positionX, positionY, "Save/" + filename + "_detail.txt");
     }
 
     void saveFile(){
+        string filename;
         ofstream fileDetail;
         ofstream filePosition;
-        filePosition.open("Save/object_position.txt", ios::out);
-        fileDetail.open("Save/object_detail.txt", ios::out);
+        
+        cin >> filename;
+        
+
+        filePosition.open("Save/" + filename + "_position.txt", ios::out);
+        fileDetail.open("Save/" + filename + "_detail.txt", ios::out);
 
         workingObject.writeToFile(filePosition, fileDetail);
     }

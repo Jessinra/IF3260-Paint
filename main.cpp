@@ -71,7 +71,7 @@ void *readinput(void *thread_id) {
 
             case SDL_MOUSEBUTTONDOWN:
 
-                switch(event.key.keysym.sym){
+                switch(event.button.button){
                     case SDL_BUTTON_LEFT:
                         buttonType = MouseButtonType::LEFT_BUTTON;
                         break;
@@ -82,7 +82,6 @@ void *readinput(void *thread_id) {
                         buttonType = MouseButtonType::UNKNOWN;
                 }
                 mouseInput.push(MouseInputData(buttonType, event.motion.x, event.motion.y));
-    //                printf("mouse coordinate %d %d\n", event.motion.x, event.motion.y);
                 break;
                 
             case SDL_QUIT:
@@ -194,7 +193,8 @@ private:
         zoomratio = 1;
         state = AppState::NORMAL;
         focusedObjectIndex = -1;
-        currentColor = 0xffffff;
+        currentColor = 0x1000000;
+        tempPlane.setColor(currentColor);
     }
 
     void render(){
@@ -210,6 +210,7 @@ private:
         drawSolidObject(horizontalscroll, horScrollBar);
         drawSolidObject(horizontalscroll, backgroundHorScroll);
 
+        drawSolidPlane(workspace, 0, 0, tempPlane);
         drawSolidObject(workspace, workingObject);
 
         flush();
@@ -339,6 +340,7 @@ private:
             mouseInput.pop();
 
             if(isLeftClick(mouseClick)){
+                cerr<<"mouse coordinate "<<mouseClick.position.getX()<<" "<<mouseClick.position.getY()<<endl;
                 if(mouseInsideToolbar(mouseClick) && mouseInsideToolbox(mouseClick)){
                     int buttonIdx = getClickedButtonIdx(mouseClick);
                     
@@ -441,63 +443,83 @@ private:
         switch (buttonIdx){
             // TODO : implement the function caller ?
             case 0:
+                cerr<<"NEW"<<endl;
                 newWorkSpace();
                 break;
             case 1:
+                cerr<<"LOAD"<<endl;
                 loadFile();
                 break;
             case 2:
+                cerr<<"SAVE"<<endl;
                 saveFile();
                 break;
             case 3:
+                cerr<<"ZOOM IN"<<endl;
                 zoomIn();
                 break;
             case 4:
+                cerr<<"ZOOM OUT"<<endl;
                 zoomOut();
                 break;
             case 5:
+                cerr<<"PAN LEFT"<<endl;
                 panLeft();
                 break;
             case 6:
+                cerr<<"PAN TOP"<<endl;
                 panTop();
                 break;
             case 7:
+                cerr<<"PAN BOTTOM"<<endl;
                 panBottom();
                 break;
             case 8:
+                cerr<<"PAN RIGHT"<<endl;
                 panRight();
                 break;
             case 9:
+                cerr<<"ROTATE CCW"<<endl;
                 rotateCCW();
                 break;
             case 10:
+                cerr<<"ROTATE CW"<<endl;
                 rotateCW();
                 break;
             case 11:
+                cerr<<"PICK COLOR"<<endl;
                 pickColor();
                 break;
             case 12:
+                cerr<<"FILL COLOR"<<endl;
                 fillColor();
                 break;
             case 13:
+                cerr<<"CREATE TRIANGLE"<<endl;
                 createTriangle();
                 break;
             case 14:
+                cerr<<"CREATE RECTANGLE"<<endl;
                 createRectangle();
                 break;
             case 15:
+                cerr<<"CREATE SHAPE"<<endl;
                 createShape();
                 break;
             case 16:
+                cerr<<"SCALE UP"<<endl;
                 scaleUp();
                 break;
             case 17:
+                cerr<<"SCALE DOWN"<<endl;
                 scaleDown();
                 break;
             case 18:
+                cerr<<"DELETE A SHAPE"<<endl;
                 deleteShape();
                 break;
             case 19:
+                cerr<<"EXIT"<<endl;
                 exit();
                 break;
         }
@@ -505,6 +527,7 @@ private:
 
     void newWorkSpace(){
         workingObject = Object();
+        workingShapes = &workingObject.getRefPlanes();
     }
 
     void loadFile(){
@@ -578,6 +601,7 @@ private:
         }
         else if(focusedObjectIndex != -1){
             workingShapes->erase(workingShapes->begin() + focusedObjectIndex);
+            workingObject.calculate();
         }
     }
 
@@ -622,6 +646,7 @@ private:
     void quitCreateShape(){
         if(!tempPlane.getConstRefLines().empty()){
             workingShapes->insert(workingShapes->begin(), tempPlane);
+            workingObject.calculate();
             tempPlane.getRefLines().clear();
             tempPlane.setPos(0, 0);
         }

@@ -212,7 +212,8 @@ private:
 
             if(isLeftClick(mouseClick)){
                 
-                if(isScrollbarClicked(mouseClick)){
+                if(isToolbarClicked(mouseClick)){
+
                     if(mouseClick.position.getY() >= 2 && mouseClick.position.getY() < 38){
                         int idx = (int)mouseClick.position.getX() / 40;
                         if(idx >= tools.size()) continue;
@@ -228,7 +229,7 @@ private:
 
                 else if(mouseInsideWorkspace(mouseClick)){
                     if(state == AppState::CREATE_SHAPE){
-                        tempPlane = drawFreeShape(mouseClick);
+                        drawFreeShape(mouseClick);
                     }
                     else{
                         setFocusOnObject(mouseClick);
@@ -254,7 +255,7 @@ private:
         return mouseClick.buttonType == MouseButtonType::RIGHT_BUTTON;
     }
 
-    bool isScrollbarClicked(MouseInputData mouseClick){
+    bool isToolbarClicked(MouseInputData mouseClick){
         return toolbar.isInside(mouseClick.position);
     }
 
@@ -381,7 +382,7 @@ private:
         state = AppState::CREATE_SHAPE;
     }
 
-    MoveablePlane drawFreeShape(MouseInputData mouseClick){
+    void drawFreeShape(MouseInputData mouseClick){
 
         int drawPositionX = mouseClick.position.getX();
         int drawPositionY = mouseClick.position.getY();

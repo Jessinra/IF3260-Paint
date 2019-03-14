@@ -164,7 +164,7 @@ public:
         tools.push_back(Object(560, 0, "Asset/icon_scale_up.txt"));
         tools.push_back(Object(600, 0, "Asset/icon_scale_down.txt"));
         tools.push_back(Object(640, 0, "Asset/icon_trash.txt"));
-        tools.push_back(Object(680, 0, "Asset/icon_color.txt"));
+        tools.push_back(Object(680, 0, "Asset/icon_fill_color.txt"));
         tools.push_back(Object(720, 0, "Asset/icon_exit.txt"));
 
         resizeScrollBar();
@@ -227,7 +227,7 @@ private:
         horScrollBar = scrollbar;
         horScrollBar.selfStretchX(0, 0, widthratio * (1.0f*horizontalscroll.getWidth() / (horScrollBar.getWidth() - 1)));
 
-        float heightTotal = max(0.0f, -workingObject.getConstRefPos().getY()) + (workspace.getHeight() + 1)
+        float heightTotal = max(0.0f, -workingObject.getConstRefPos().getY()) + (workspace.getHeight())
                             + max(0.0f, workingObject.getConstRefPos().getY() + workingObject.getLowerRight().getY()
                                         - (workspace.getConstRefPos().getY() + workspace.getConstRefBox().getYMax()));
         heightratio = 1.0f * (verticalscroll.getHeight() + 1) / heightTotal;

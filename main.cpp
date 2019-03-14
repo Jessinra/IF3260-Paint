@@ -119,7 +119,7 @@ protected:
     MoveableObject workingObject;
     vector<MoveablePlane> *workingShapes;
     MoveablePlane tempPlane;
-    int focus;
+    int focusedObjectIndex;
     unsigned int currentColor;
 
 public:
@@ -159,7 +159,7 @@ private:
         moveVer = moveHor = zoom = 0;
         zoomratio = 1;
         state = AppState::NORMAL;
-        focus = -1;
+        focusedObjectIndex = -1;
         currentColor = 0xffffff;
     }
 
@@ -216,7 +216,6 @@ private:
                         if(mouseClick.position.getY() >= idx*40 + 2 && mouseClick.position.getY() < (idx+1)*40 - 2){
                             switch (idx){
                                 case 1:
-
                                     break;
                             }
                             break;
@@ -225,45 +224,38 @@ private:
                 }
                 else if(workspace.isInside(mouseClick.position.getX() - workspace.getRefPos().getX(), mouseClick.position.getY() - workspace.getRefPos().getY())){
                     if(state == AppState::CREATE_SHAPE){
-                        vector<Line> &lines = tempPlane.getRefLines();
-                        Pixel currPixel = Pixel(mouseClick.position.getX(), mouseClick.position.getY(), currentColor);
-                        if(lines.empty()){
-                            lines.push_back(Line(currPixel, currPixel));
-                        }
-                        else{
-                            Pixel endPixel = lines.back().getRefEndPixel();
-                            Pixel startPixel = lines.back().getRefStartPixel();
-                            lines.pop_back();
-                            lines.push_back(Line(startPixel, currPixel));
-                            lines.push_back(Line(currPixel, endPixel));
-                        }
+                        tempPlane = drawFreeShape(mouseClick);
                     }
+
                     else{
-                        float x = mouseClick.position.getX() - workspace.getConstRefPos().getX() - workingObject.getConstRefPos().getX();
-                        float y = mouseClick.position.getY() - workspace.getConstRefPos().getY() - workingObject.getConstRefPos().getY();
-                        focus = -1;
-                        for(int i=0;i<workingObject.getConstRefPlanes().size();++i){
-                            const MoveablePlane &plane = workingObject.getConstRefPlanes()[i];
-                            if(x >= plane.getConstRefPos().getX() && x < plane.getConstRefPos().getX() + plane.getLowerRight().getX() &&
-                                y >= plane.getConstRefPos().getY() && y < plane.getConstRefPos().getY() + plane.getLowerRight().getY()){
-                                focus = i;
-                                break;
-                            }
-                        }
+                        setFocusOnObject(mouseClick);
                     }
                     break;
                 }
             }
             else if(mouseClick.buttonType == MouseButtonType::RIGHT_BUTTON){
                 if(state == AppState::CREATE_SHAPE){
-                    if(!tempPlane.getConstRefLines().empty()){
-                        workingShapes->insert(workingShapes->begin(), tempPlane);
-                        tempPlane.getRefLines().clear();
-                        tempPlane.setPos(0, 0);
-                    }
-                    state = AppState::NORMAL;
+                    quitCreateShape(tempPlane);
                     break;
                 }
+            }
+        }
+    }
+
+    void setFocusOnObject(MouseInputData mouseClick){
+
+        float x = mouseClick.position.getX() - workspace.getConstRefPos().getX() - workingObject.getConstRefPos().getX();
+        float y = mouseClick.position.getY() - workspace.getConstRefPos().getY() - workingObject.getConstRefPos().getY();
+
+        focusedObjectIndex = -1;
+
+        for(int i=0; i<workingObject.getConstRefPlanes().size(); ++i){
+
+            const MoveablePlane &plane = workingObject.getConstRefPlanes()[i];
+            if(x >= plane.getConstRefPos().getX() && x < plane.getConstRefPos().getX() + plane.getLowerRight().getX() &&
+                y >= plane.getConstRefPos().getY() && y < plane.getConstRefPos().getY() + plane.getLowerRight().getY()){
+                focusedObjectIndex = i;
+                break;
             }
         }
     }
@@ -364,7 +356,36 @@ private:
     }
 
     void createShape(){
-        // TODO: Create Shape
+        state = AppState::CREATE_SHAPE;
+    }
+
+    MoveablePlane drawFreeShape(MouseInputData mouseClick){
+
+        int drawPositionX = mouseClick.position.getX();
+        int drawPositionY = mouseClick.position.getY();
+
+        vector<Line> &lines = tempPlane.getRefLines();
+        Pixel currPixel = Pixel(drawPositionX, drawPositionY, currentColor);
+
+        if(lines.empty()){
+            lines.push_back(Line(currPixel, currPixel));
+        }
+        else{
+            Pixel endPixel = lines.back().getRefEndPixel();
+            Pixel startPixel = lines.back().getRefStartPixel();
+            lines.pop_back();
+            lines.push_back(Line(startPixel, currPixel));
+            lines.push_back(Line(currPixel, endPixel));
+        }
+    }
+
+    void quitCreateShape(MoveablePlane tempPlane){
+        if(!tempPlane.getConstRefLines().empty()){
+            workingShapes->insert(workingShapes->begin(), tempPlane);
+            tempPlane.getRefLines().clear();
+            tempPlane.setPos(0, 0);
+        }
+        state = AppState::NORMAL;
     }
 
     void createRectangle(MouseInputData mouseClick){

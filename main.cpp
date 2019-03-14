@@ -501,7 +501,6 @@ private:
     }
 
     void newWorkSpace(){
-        // TODO: NEW
         workingObject = Object();
     }
 
@@ -538,11 +537,11 @@ private:
     }
 
     void rotateCCW(){
-        
+        workingObject.selfRotate(workspace.getWidth()/2, workspace.getHeight()/2, -90);
     }
 
     void rotateCW(){
-        // TODO: Rotate ClockWise 90
+        workingObject.selfRotate(workspace.getWidth()/2, workspace.getHeight()/2, 90);
     }
 
     void pickColor(){
@@ -571,10 +570,12 @@ private:
 
     void scaleUp(){
         (*workingShapes)[focusedObjectIndex].selfDilate(workspace.getWidth() / 2, workspace.getHeight() / 2, constFactor);
+        workingObject.calculate();
     }
 
     void scaleDown(){
         (*workingShapes)[focusedObjectIndex].selfDilate(workspace.getWidth() / 2, workspace.getHeight() / 2, 1/constFactor);
+        workingObject.calculate();
     }
 
     /* =================================

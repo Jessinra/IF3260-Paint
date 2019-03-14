@@ -438,7 +438,6 @@ private:
 
     void runButtonFunction(int buttonIdx){
         switch (buttonIdx){
-
             // TODO : implement the function caller ?
             case 0:
                 newWorkSpace();
@@ -549,7 +548,8 @@ private:
     }
 
     void fillColor(){
-        // TODO: Fill Shape Color
+        MoveablePlane &plane = (*workingShapes)[focusedObjectIndex];
+        plane.setColor(currentColor);
     }
 
     void createTriangle(){

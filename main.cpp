@@ -158,13 +158,14 @@ public:
         tools.push_back(Object(400, 0, "Asset/icon_rotate_cw.txt"));
         // here pick color
         tools.push_back(Object(440, 0, "Asset/icon_fill_color.txt"));
-        tools.push_back(Object(480, 0, "Asset/icon_shape_triangle.txt"));
-        tools.push_back(Object(520, 0, "Asset/icon_shape_square.txt"));
-        tools.push_back(Object(560, 0, "Asset/icon_shape.txt"));
-        tools.push_back(Object(600, 0, "Asset/icon_scale_up.txt"));
-        tools.push_back(Object(640, 0, "Asset/icon_scale_down.txt"));
-        tools.push_back(Object(680, 0, "Asset/icon_trash.txt"));
-        tools.push_back(Object(720, 0, "Asset/icon_exit.txt"));
+        tools.push_back(Object(480, 0, "Asset/icon_fill_color.txt"));
+        tools.push_back(Object(520, 0, "Asset/icon_shape_triangle.txt"));
+        tools.push_back(Object(560, 0, "Asset/icon_shape_square.txt"));
+        tools.push_back(Object(600, 0, "Asset/icon_shape.txt"));
+        tools.push_back(Object(640, 0, "Asset/icon_scale_up.txt"));
+        tools.push_back(Object(680, 0, "Asset/icon_scale_down.txt"));
+        tools.push_back(Object(720, 0, "Asset/icon_trash.txt"));
+        tools.push_back(Object(760, 0, "Asset/icon_exit.txt"));
 
         resizeScrollBar();
     }
@@ -494,6 +495,9 @@ private:
                 scaleDown();
                 break;
             case 18:
+                deleteShape();
+                break;
+            case 19:
                 exit();
                 break;
         }
@@ -562,6 +566,19 @@ private:
 
     void createShape(){
         state = AppState::CREATE_SHAPE;
+    }
+
+    void deleteShape(){
+        if(state == AppState::CREATE_TRIANGLE || state == AppState::CREATE_RECTANGLE){
+            state = AppState::NORMAL;
+        }
+        else if(state == AppState::CREATE_SHAPE){
+            tempPlane.getRefLines().clear();
+            tempPlane.setPos(0, 0);
+        }
+        else if(focusedObjectIndex != -1){
+            workingShapes->erase(workingShapes->begin() + focusedObjectIndex);
+        }
     }
 
     void exit(){

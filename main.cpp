@@ -503,6 +503,7 @@ private:
 
     void newWorkSpace(){
         // TODO: NEW
+        workingObject = Object();
     }
 
     void loadFile(){

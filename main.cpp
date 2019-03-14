@@ -302,8 +302,57 @@ private:
     void runButtonFunction(int buttonIdx){
         switch (buttonIdx){
 
-            // TODO : implement the function caller ? 
+            // TODO : implement the function caller ?
+            case 0:
+                newWorkSpace();
+                break;
             case 1:
+                loadFile();
+                break;
+            case 2:
+                saveFile();
+                break;
+            case 3:
+                zoomIn();
+                break;
+            case 4:
+                zoomOut();
+                break;
+            case 5:
+                panLeft();
+                break;
+            case 6:
+                panTop();
+                break;
+            case 7:
+                panBottom();
+                break;
+            case 8:
+                panRight();
+                break;
+            case 9:
+                rotateCCW();
+                break;
+            case 10:
+                rotateCW();
+                break;
+            case 11:
+                pickColor();
+                break;
+            case 12:
+                fillColor();
+                break;
+            case 13:
+                createTriangle();
+                break;
+            case 14:
+                createRectangle();
+                break;
+            case 15:
+                createShape();
+                break;
+            case 16:
+                exit);
                 break;
         }
     }
@@ -415,6 +464,34 @@ private:
         state = AppState::CREATE_SHAPE;
     }
 
+    void rotateCW(){
+        // TODO: Rotate ClockWise 90
+    }
+
+    void rotateCCW(){
+        // TODO: Rotate Counter ClockWise 90
+    }
+
+    void exit(){
+        // TODO: EXIT
+    }
+
+    void panLeft(){
+        ++moveHor;
+    }
+
+    void panRight(){
+        --moveHor;
+    }
+
+    void panTop(){
+        ++moveVer;
+    }
+
+    void panBottom(){
+        --moveVer;
+    }
+
     void drawFreeShape(MouseInputData mouseClick){
 
         int drawPositionX = mouseClick.position.getX();
@@ -462,34 +539,6 @@ private:
         for(MoveablePlane plane : tempTriangle.getPlanes()){
             workingObject.addPlane(plane);
         }
-    }
-
-    void rotateCW(){
-        // TODO: Rotate ClockWise 90
-    }
-
-    void rotateCCW(){
-        // TODO: Rotate Counter ClockWise 90
-    }
-
-    void Exit(){
-        // TODO: EXIT
-    }
-
-    void panLeft(){
-        ++moveHor;
-    }
-
-    void panRight(){
-        --moveHor;
-    }
-
-    void panTop(){
-        ++moveVer;
-    }
-
-    void panBottom(){
-        --moveVer;
     }
 };
 

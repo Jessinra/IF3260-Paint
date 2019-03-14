@@ -222,38 +222,32 @@ private:
     void resizeScrollBar(){
         float widthTotal = max(0.0f, -workingObject.getConstRefPos().getX()) + (workspace.getWidth())
                            + max(0.0f, workingObject.getConstRefPos().getX() + workingObject.getLowerRight().getX()
-                                       - (workspace.getConstRefPos().getX() + workspace.getConstRefBox().getXMax()));
+                                       - (workspace.getConstRefBox().getXMax()));
         widthratio = 1.0f * (horizontalscroll.getWidth()) / widthTotal;
         horScrollBar = scrollbar;
         horScrollBar.selfStretchX(0, 0, widthratio * (1.0f*horizontalscroll.getWidth() / (horScrollBar.getWidth() - 1)));
 
         float heightTotal = max(0.0f, -workingObject.getConstRefPos().getY()) + (workspace.getHeight())
                             + max(0.0f, workingObject.getConstRefPos().getY() + workingObject.getLowerRight().getY()
-                                        - (workspace.getConstRefPos().getY() + workspace.getConstRefBox().getYMax()));
-        heightratio = 1.0f * (verticalscroll.getHeight() + 1) / heightTotal;
+                                        - (workspace.getConstRefBox().getYMax()));
+        heightratio = 1.0f * (verticalscroll.getHeight()) / heightTotal;
         verScrollBar = scrollbar;
         verScrollBar.selfStretchY(0, 0, heightratio * (1.0f*verticalscroll.getHeight() / (verScrollBar.getHeight() - 1)));
-
-        cerr<<"ratio "<<widthratio<<" "<<heightratio<<endl;
-        cerr<<horScrollBar.getWidth()<<" "<<verScrollBar.getHeight()<<endl;
-        cerr<<workingObject.getWidth()<<" "<<workingObject.getHeight()<<endl;
-        cerr<<workspace.getWidth()<<" "<<workspace.getHeight()<<endl;
 
         reposScrollBar();
     }
 
     void reposScrollBar(){
-        float widthTotal = max(0.0f, -workingObject.getConstRefPos().getX()) + (workingObject.getWidth() + 1)
+        float widthTotal = max(0.0f, -workingObject.getConstRefPos().getX()) + (workspace.getWidth())
                            + max(0.0f, workingObject.getConstRefPos().getX() + workingObject.getLowerRight().getX()
-                                       - (workspace.getConstRefPos().getX() + workspace.getConstRefBox().getXMax()));
+                                       - (workspace.getConstRefBox().getXMax()));
         float leftOffset = max(0.0f, -workingObject.getConstRefPos().getX());
-        float heightTotal = max(0.0f, -workingObject.getConstRefPos().getY()) + (workingObject.getHeight() + 1)
+        float heightTotal = max(0.0f, -workingObject.getConstRefPos().getY()) + (workspace.getHeight())
                             + max(0.0f, workingObject.getConstRefPos().getY() + workingObject.getLowerRight().getY()
-                                        - (workspace.getConstRefPos().getY() + workspace.getConstRefBox().getYMax()));
+                                        - (workspace.getConstRefBox().getYMax()));
         float topOffset = max(0.0f, -workingObject.getConstRefPos().getY());
         horScrollBar.getRefPos().setX(leftOffset / widthTotal * (horizontalscroll.getWidth()));
         verScrollBar.getRefPos().setY(topOffset / heightTotal * (verticalscroll.getHeight()));
-
     }
 
     void adjustZoom(){

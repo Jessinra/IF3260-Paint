@@ -2,6 +2,10 @@
 #define PLANE_HPP
 
 #include <vector>
+#include <stdio.h>
+#include <iomanip>
+#include <fstream>
+#include <iostream>
 #include "Line.hpp"
 #include "Rectangle.hpp"
 
@@ -56,6 +60,8 @@ class Plane
     /* For MovableObject polymorphism purpose */
     virtual void selfRotate(float pivotX, float pivotY, float theta);
     virtual void selfDilate(float pivotX, float pivotY, float scalingConstant);
+
+    void writeToFile(ofstream &fileOutput);
 };
 
 #endif

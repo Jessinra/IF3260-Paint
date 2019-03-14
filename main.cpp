@@ -25,13 +25,14 @@ int moveVer, moveHor, zoom;
 int speed = 1;
 
 void *readinput(void *thread_id) {
-    char c;
+
     MouseButtonType buttonType;
     SDL_Event event;
     while (application_running) {
         SDL_WaitEvent(&event);
         switch (event.type){
             case SDL_KEYDOWN:
+
                 switch(event.key.keysym.sym){
                     case SDLK_w:
                     case SDLK_UP:
@@ -67,7 +68,9 @@ void *readinput(void *thread_id) {
                         break;
                 }
                 break;
+
             case SDL_MOUSEBUTTONDOWN:
+
                 switch(event.key.keysym.sym){
                     case SDL_BUTTON_LEFT:
                         buttonType = MouseButtonType::LEFT_BUTTON;
@@ -81,6 +84,7 @@ void *readinput(void *thread_id) {
                 mouseInput.push(MouseInputData(buttonType, event.motion.x, event.motion.y));
 //                printf("mouse coordinate %d %d\n", event.motion.x, event.motion.y);
                 break;
+                
             case SDL_QUIT:
                 application_running = false;
                 break;
@@ -97,21 +101,30 @@ enum AppState{
 
 class Runner : public Master {
 protected:
+
+    /* =================================
+                GUI Section 
+    ================================== */
     View toolbar, workspace, verticalscroll, horizontalscroll;
     Object scrollbar;
     MoveableObject backgroundToolbar, backgroundVerScroll, backgroundHorScroll;
     MoveableObject verScrollBar, horScrollBar;
-    MoveableObject workingObject;
     vector<MoveableObject> tools;
+    float widthratio, heightratio, zoomratio;
+    AppState state;
+
+    /* =================================
+                Selector Section 
+    ================================== */
+    MoveableObject workingObject;
     vector<MoveablePlane> *workingShapes;
     MoveablePlane tempPlane;
-    float widthratio, heightratio, zoomratio;
     int focus;
     unsigned int currentColor;
-    AppState state;
 
 public:
     Runner(int h = WINDOWHEIGHT, int w = WINDOWWIDTH) : Master(h, w) {
+        
         toolbar = View(Point(0, 0), Rectangle(0, 0, WINDOWWIDTH, 40));
         workspace = View(Point(0, 40), Rectangle(0, 0, 980, 640));
         verticalscroll = View(Point(980, 40), Rectangle(0, 0, 20, 640));
@@ -137,7 +150,7 @@ public:
             adjustMove();
 
             usleep(6000);
-//            application_running = false;
+        //            application_running = false;
         }
     }
 
@@ -354,12 +367,28 @@ private:
         // TODO: Create Shape
     }
 
-    void createRectangle(){
-        // TODO: Create Rectangle
+    void createRectangle(MouseInputData mouseClick){
+
+        // TODO : need offset or adjustment ??
+        int drawPositionX = mouseClick.position.getX();
+        int drawPositionY = mouseClick.position.getY();
+
+        MoveableObject tempRectangle = Object(drawPositionX, drawPositionY, "Asset/Shapes/square.txt");
+        for(MoveablePlane plane : tempRectangle.getPlanes()){
+            workingObject.addPlane(plane);
+        }
     }
 
-    void createTriangle(){
-        // TODO: Create Triangle
+    void createTriangle(MouseInputData mouseClick){
+
+        // TODO : need offset or adjustment ??
+        int drawPositionX = mouseClick.position.getX();
+        int drawPositionY = mouseClick.position.getY();
+
+        MoveableObject tempTriangle = Object(drawPositionX, drawPositionY, "Asset/Shapes/triangle.txt");
+        for(MoveablePlane plane : tempTriangle.getPlanes()){
+            workingObject.addPlane(plane);
+        }
     }
 
     void rotateCW(){

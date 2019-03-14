@@ -269,10 +269,12 @@ private:
 
     void zoomIn(){
         // TODO: Zoom In
+        ++zoom;
     }
 
     void zoomOut(){
         // TODO: Zoom out
+        --zoom;
     }
 
     void FillColor(){

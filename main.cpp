@@ -206,10 +206,13 @@ private:
     void processClick(){
         // TODO: Process Click
         while(!mouseInput.empty()){
+
             MouseInputData mouseClick = mouseInput.front();
             mouseInput.pop();
-            if(mouseClick.buttonType == MouseButtonType::LEFT_BUTTON){
-                if(toolbar.isInside(mouseClick.position)){
+
+            if(isLeftClick(mouseClick)){
+                
+                if(isScrollbarClicked(mouseClick)){
                     if(mouseClick.position.getY() >= 2 && mouseClick.position.getY() < 38){
                         int idx = (int)mouseClick.position.getX() / 40;
                         if(idx >= tools.size()) continue;
@@ -222,24 +225,43 @@ private:
                         }
                     }
                 }
-                else if(workspace.isInside(mouseClick.position.getX() - workspace.getRefPos().getX(), mouseClick.position.getY() - workspace.getRefPos().getY())){
+
+                else if(mouseInsideWorkspace(mouseClick)){
                     if(state == AppState::CREATE_SHAPE){
                         tempPlane = drawFreeShape(mouseClick);
                     }
-
                     else{
                         setFocusOnObject(mouseClick);
                     }
                     break;
                 }
             }
-            else if(mouseClick.buttonType == MouseButtonType::RIGHT_BUTTON){
+
+            else if(isRightClick(mouseClick)){
                 if(state == AppState::CREATE_SHAPE){
                     quitCreateShape(tempPlane);
                     break;
                 }
             }
         }
+    }
+
+    bool isLeftClick(MouseInputData mouseClick){
+        return mouseClick.buttonType == MouseButtonType::LEFT_BUTTON;
+    }
+
+    bool isRightClick(MouseInputData mouseClick){
+        return mouseClick.buttonType == MouseButtonType::RIGHT_BUTTON;
+    }
+
+    bool isScrollbarClicked(MouseInputData mouseClick){
+        return toolbar.isInside(mouseClick.position);
+    }
+
+    bool mouseInsideWorkspace(MouseInputData mouseClick){
+        return workspace.isInside(
+            mouseClick.position.getX() - workspace.getRefPos().getX(),
+            mouseClick.position.getY() - workspace.getRefPos().getY());
     }
 
     void setFocusOnObject(MouseInputData mouseClick){
@@ -391,8 +413,8 @@ private:
     void createRectangle(MouseInputData mouseClick){
 
         // TODO : need offset or adjustment ??
-        int drawPositionX = mouseClick.position.getX();
-        int drawPositionY = mouseClick.position.getY();
+        int drawPositionX = mouseClick.position.getX() - 25;
+        int drawPositionY = mouseClick.position.getY() - 25;
 
         MoveableObject tempRectangle = Object(drawPositionX, drawPositionY, "Asset/Shapes/square.txt");
         for(MoveablePlane plane : tempRectangle.getPlanes()){
@@ -403,8 +425,8 @@ private:
     void createTriangle(MouseInputData mouseClick){
 
         // TODO : need offset or adjustment ??
-        int drawPositionX = mouseClick.position.getX();
-        int drawPositionY = mouseClick.position.getY();
+        int drawPositionX = mouseClick.position.getX() - 25;
+        int drawPositionY = mouseClick.position.getY() - 9;
 
         MoveableObject tempTriangle = Object(drawPositionX, drawPositionY, "Asset/Shapes/triangle.txt");
         for(MoveablePlane plane : tempTriangle.getPlanes()){

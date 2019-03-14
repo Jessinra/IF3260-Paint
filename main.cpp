@@ -182,29 +182,41 @@ private:
     }
 
     void resizeScrollBar(){
-        widthratio = max(1.0f * workingObject.getWidth() / (workspace.getWidth() + 1), 1.0f);
+        float widthTotal = max(0.0f, -workingObject.getConstRefPos().getX()) + (workspace.getWidth())
+                + max(0.0f, workingObject.getConstRefPos().getX() + workingObject.getLowerRight().getX()
+                           - (workspace.getConstRefPos().getX() + workspace.getConstRefBox().getXMax()));
+        widthratio = 1.0f * (horizontalscroll.getWidth()) / widthTotal;
         horScrollBar = scrollbar;
-        horScrollBar.selfStretchX(0, 0, 1/widthratio * (1.0f*(horizontalscroll.getWidth() + 1) / horScrollBar.getWidth()));
+        horScrollBar.selfStretchX(0, 0, widthratio * (1.0f*horizontalscroll.getWidth() / (horScrollBar.getWidth() - 1)));
 
-        heightratio = max(1.0f * (workingObject.getHeight()-1) / workspace.getHeight(), 1.0f);
+        float heightTotal = max(0.0f, -workingObject.getConstRefPos().getY()) + (workspace.getHeight() + 1)
+                + max(0.0f, workingObject.getConstRefPos().getY() + workingObject.getLowerRight().getY()
+                           - (workspace.getConstRefPos().getY() + workspace.getConstRefBox().getYMax()));
+        heightratio = 1.0f * (verticalscroll.getHeight() + 1) / heightTotal;
         verScrollBar = scrollbar;
-        verScrollBar.selfStretchY(0, 0, 1/heightratio * (1.0f*(verticalscroll.getHeight() + 1) / verScrollBar.getHeight()));
+        verScrollBar.selfStretchY(0, 0, heightratio * (1.0f*verticalscroll.getHeight() / (verScrollBar.getHeight() - 1)));
 
-        cerr<<"ratio "<<widthratio<<" "<<heightratio<<endl;
-        cerr<<horScrollBar.getWidth()<<" "<<verScrollBar.getHeight()<<endl;
-        cerr<<workingObject.getWidth()<<" "<<workingObject.getHeight()<<endl;
-        cerr<<workspace.getWidth()<<" "<<workspace.getHeight()<<endl;
+//        cerr<<"ratio "<<widthratio<<" "<<heightratio<<endl;
+//        cerr<<"len "<<widthTotal<<" "<<(workingObject.getWidth() + 1)<<" "<<heightTotal<<" "<<(workingObject.getHeight() + 1)<<endl;
+//        cerr<<horScrollBar.getWidth()<<" "<<verScrollBar.getHeight()<<endl;
+//        cerr<<workingObject.getWidth()<<" "<<workingObject.getHeight()<<endl;
+//        cerr<<workspace.getWidth()<<" "<<workspace.getHeight()<<endl;
 
         reposScrollBar();
     }
 
     void reposScrollBar(){
-        if(widthratio > 1){
-            horScrollBar.getRefPos().setX(max(0.0f, (-workingObject.getConstRefPos().getX()) / ((workingObject.getWidth()-1) - workspace.getWidth()) *(horizontalscroll.getWidth() - (horScrollBar.getWidth() - 1))));
-        }
-        if(heightratio > 1){
-            verScrollBar.getRefPos().setY(max(0.0f, (-workingObject.getConstRefPos().getY()) / ((workingObject.getHeight()-1) - workspace.getHeight()) *(verticalscroll.getHeight() - (verScrollBar.getHeight() - 1))));
-        }
+        float widthTotal = max(0.0f, -workingObject.getConstRefPos().getX()) + (workingObject.getWidth() + 1)
+                           + max(0.0f, workingObject.getConstRefPos().getX() + workingObject.getLowerRight().getX()
+                                       - (workspace.getConstRefPos().getX() + workspace.getConstRefBox().getXMax()));
+        float leftOffset = max(0.0f, -workingObject.getConstRefPos().getX());
+        float heightTotal = max(0.0f, -workingObject.getConstRefPos().getY()) + (workingObject.getHeight() + 1)
+                            + max(0.0f, workingObject.getConstRefPos().getY() + workingObject.getLowerRight().getY()
+                                        - (workspace.getConstRefPos().getY() + workspace.getConstRefBox().getYMax()));
+        float topOffset = max(0.0f, -workingObject.getConstRefPos().getY());
+        horScrollBar.getRefPos().setX(leftOffset / widthTotal * (horizontalscroll.getWidth()));
+        verScrollBar.getRefPos().setY(topOffset / heightTotal * (verticalscroll.getHeight()));
+//        cerr<<horScrollBar.getRefPos().getX()<<" "<<verScrollBar.getRefPos().getY()<<endl;
     }
 
     void processClick(){
@@ -323,8 +335,8 @@ private:
             else{
                 if(zoomratio > 1.0f/20){
                     zoomratio /= constFactor;
-                    workingObject.selfDilate(workspace.getWidth() / 2, workspace.getHeight() / 2, 1/constFactor);
                     ++zoom;
+                    workingObject.selfDilate(workspace.getWidth() / 2, workspace.getHeight() / 2, 1/constFactor);
                     resizeScrollBar();
                 }
                 else{
@@ -340,6 +352,7 @@ private:
                 if(workingObject.getConstRefPos().getX() < 0){
                     workingObject.getRefPos().setX(min(workingObject.getConstRefPos().getX() + speed, 0.0f));
                     --moveHor;
+                    resizeScrollBar();
                 }
                 else{
                     moveHor = 0;
@@ -349,6 +362,7 @@ private:
                 if(workingObject.getConstRefPos().getX() + workingObject.getLowerRight().getX() >= workspace.getConstRefBox().getXMax()){
                     workingObject.getRefPos().setX(max(workingObject.getConstRefPos().getX() - speed, (float)min(workspace.getWidth() - workingObject.getWidth(), 0)));
                     ++moveHor;
+                    resizeScrollBar();
                 }
                 else{
                     moveHor = 0;
@@ -360,6 +374,7 @@ private:
                 if(workingObject.getConstRefPos().getY() < 0){
                     workingObject.getRefPos().setY(min(workingObject.getConstRefPos().getY() + speed, 0.0f));
                     --moveVer;
+                    resizeScrollBar();
                 }
                 else{
                     moveVer = 0;
@@ -369,13 +384,13 @@ private:
                 if(workingObject.getConstRefPos().getY() + workingObject.getLowerRight().getY() >= workspace.getConstRefBox().getYMax()){
                     workingObject.getRefPos().setY(max(workingObject.getConstRefPos().getY() - speed, (float)min(workspace.getHeight() - workingObject.getHeight(), 0)));
                     ++moveVer;
+                    resizeScrollBar();
                 }
                 else{
                     moveVer = 0;
                 }
             }
         }
-        reposScrollBar();
     }
 
     void newWorkSpace(){

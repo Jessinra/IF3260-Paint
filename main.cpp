@@ -114,6 +114,11 @@ protected:
     AppState state;
 
     /* =================================
+                Config Section 
+    ================================== */
+    int toolbarButtonSize = 40;
+
+    /* =================================
                 Selector Section 
     ================================== */
     MoveableObject workingObject;
@@ -212,19 +217,15 @@ private:
 
             if(isLeftClick(mouseClick)){
                 
-                if(isToolbarClicked(mouseClick)){
+                if(mouseInsideToolbar(mouseClick) && mouseInsideToolbox(mouseClick)){
 
-                    if(mouseClick.position.getY() >= 2 && mouseClick.position.getY() < 38){
-                        int idx = (int)mouseClick.position.getX() / 40;
-                        if(idx >= tools.size()) continue;
-                        if(mouseClick.position.getY() >= idx*40 + 2 && mouseClick.position.getY() < (idx+1)*40 - 2){
-                            switch (idx){
-                                case 1:
-                                    break;
-                            }
-                            break;
-                        }
+                    int buttonIdx = getButtonIdx(mouseClick);
+                    if(buttonUndefined(buttonIdx)){
+                        continue;
                     }
+
+                    runButtonFunction(buttonIdx);
+                    break;
                 }
 
                 else if(mouseInsideWorkspace(mouseClick)){
@@ -247,6 +248,14 @@ private:
         }
     }
 
+    int getButtonIdx(MouseInputData mouseClick){
+        return (int) mouseClick.position.getX() / toolbarButtonSize;
+    }
+
+    bool buttonUndefined(int buttonIdx){
+        return buttonIdx >= tools.size();
+    }
+
     bool isLeftClick(MouseInputData mouseClick){
         return mouseClick.buttonType == MouseButtonType::LEFT_BUTTON;
     }
@@ -255,8 +264,17 @@ private:
         return mouseClick.buttonType == MouseButtonType::RIGHT_BUTTON;
     }
 
-    bool isToolbarClicked(MouseInputData mouseClick){
+    bool mouseInsideToolbar(MouseInputData mouseClick){
         return toolbar.isInside(mouseClick.position);
+    }
+
+    bool mouseInsideToolbox(MouseInputData mouseClick){
+        return mouseClick.position.getY() >= 2 && mouseClick.position.getY() < 38;
+    }
+
+    bool isButtonClicked(MouseInputData mouseClick, int buttonIdx){
+        return (mouseClick.position.getY() >= buttonIdx * toolbarButtonSize + 2 &&
+                mouseClick.position.getY() < (buttonIdx + 1) * toolbarButtonSize - 2);
     }
 
     bool mouseInsideWorkspace(MouseInputData mouseClick){
@@ -282,6 +300,17 @@ private:
             }
         }
     }
+
+    void runButtonFunction(int buttonIdx){
+                        
+        switch (buttonIdx){
+
+            // TODO : implement the function caller ? 
+            case 1:
+                break;
+        }
+    }
+
 
     void adjustZoom(){
         if(zoom != 0){

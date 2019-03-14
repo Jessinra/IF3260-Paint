@@ -154,3 +154,8 @@ const Rectangle &Plane::getConstRefBoundedBox() const {
     return box;
 }
 
+Plane::Plane() {
+    position.setPoint(0, 0);
+    xMin = xMax = yMin = yMax = 0;
+}
+

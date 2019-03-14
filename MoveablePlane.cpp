@@ -58,3 +58,6 @@ void MoveablePlane::selfStretchY(float pivotX, float pivotY, float scalingConsta
     calculate();
 }
 
+MoveablePlane::MoveablePlane() : Plane() {
+}
+

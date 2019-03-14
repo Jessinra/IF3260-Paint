@@ -25,7 +25,7 @@ int moveVer, moveHor, zoom;
 int speed = 1;
 
 void *readinput(void *thread_id) {
-    char c;
+
     MouseButtonType buttonType;
     SDL_Event event;
     while (application_running) {
@@ -67,6 +67,7 @@ void *readinput(void *thread_id) {
                         break;
                 }
                 break;
+
             case SDL_MOUSEBUTTONDOWN:
                 switch(event.key.keysym.sym){
                     case SDL_BUTTON_LEFT:
@@ -79,8 +80,9 @@ void *readinput(void *thread_id) {
                         buttonType = MouseButtonType::UNKNOWN;
                 }
                 mouseInput.push(MouseInputData(buttonType, event.motion.x, event.motion.y));
-                printf("mouse coordinate %d %d\n", event.motion.x, event.motion.y);
+    //                printf("mouse coordinate %d %d\n", event.motion.x, event.motion.y);
                 break;
+                
             case SDL_QUIT:
                 application_running = false;
                 break;
@@ -90,21 +92,42 @@ void *readinput(void *thread_id) {
     pthread_exit(nullptr);
 }
 
+enum AppState{
+    NORMAL,
+    CREATE_SHAPE
+};
+
 class Runner : public Master {
 protected:
+
+    /* =================================
+                GUI Section 
+    ================================== */
     View toolbar, workspace, verticalscroll, horizontalscroll;
     Object scrollbar;
     MoveableObject backgroundToolbar, backgroundVerScroll, backgroundHorScroll;
     MoveableObject verScrollBar, horScrollBar;
-    MoveableObject workingObject;
     vector<MoveableObject> tools;
+    float widthratio, heightratio, zoomratio;
+    AppState state;
+
+    /* =================================
+                Config Section 
+    ================================== */
+    const int toolbarButtonSize = 40;
+
+    /* =================================
+                Selector Section 
+    ================================== */
+    MoveableObject workingObject;
     vector<MoveablePlane> *workingShapes;
-    float widthratio;
-    float heightratio;
-    float zoomratio;
+    MoveablePlane tempPlane;
+    int focusedObjectIndex;
+    unsigned int currentColor;
 
 public:
     Runner(int h = WINDOWHEIGHT, int w = WINDOWWIDTH) : Master(h, w) {
+        
         toolbar = View(Point(0, 0), Rectangle(0, 0, WINDOWWIDTH, 40));
         workspace = View(Point(0, 40), Rectangle(0, 0, 980, 640));
         verticalscroll = View(Point(980, 40), Rectangle(0, 0, 20, 640));
@@ -118,6 +141,8 @@ public:
         workingObject = Object(0, 0, "Asset/object_building.txt");
         workingShapes = &workingObject.getRefPlanes();
 
+
+
         resizeScrollBar();
     }
 
@@ -130,7 +155,6 @@ public:
             adjustMove();
 
             usleep(6000);
-//            application_running = false;
         }
     }
 
@@ -138,6 +162,9 @@ private:
     void preprocess(){
         moveVer = moveHor = zoom = 0;
         zoomratio = 1;
+        state = AppState::NORMAL;
+        focusedObjectIndex = -1;
+        currentColor = 0xffffff;
     }
 
     void render(){
@@ -155,34 +182,181 @@ private:
     }
 
     void resizeScrollBar(){
-        widthratio = max(1.0f * workingObject.getWidth() / (workspace.getWidth() + 1), 1.0f);
+        float widthTotal = max(0.0f, -workingObject.getConstRefPos().getX()) + (workspace.getWidth())
+                + max(0.0f, workingObject.getConstRefPos().getX() + workingObject.getLowerRight().getX()
+                           - (workspace.getConstRefBox().getXMax()));
+        widthratio = 1.0f * (horizontalscroll.getWidth()) / widthTotal;
         horScrollBar = scrollbar;
-        horScrollBar.selfStretchX(0, 0, 1/widthratio * (1.0f*(horizontalscroll.getWidth() + 1) / horScrollBar.getWidth()));
+        horScrollBar.selfStretchX(0, 0, widthratio * (1.0f*horizontalscroll.getWidth() / (horScrollBar.getWidth() - 1)));
 
-        heightratio = max(1.0f * (workingObject.getHeight()-1) / workspace.getHeight(), 1.0f);
+        float heightTotal = max(0.0f, -workingObject.getConstRefPos().getY()) + (workspace.getHeight())
+                + max(0.0f, workingObject.getConstRefPos().getY() + workingObject.getLowerRight().getY()
+                           - (workspace.getConstRefBox().getYMax()));
+        heightratio = 1.0f * (verticalscroll.getHeight()) / heightTotal;
         verScrollBar = scrollbar;
-        verScrollBar.selfStretchY(0, 0, 1/heightratio * (1.0f*(verticalscroll.getHeight() + 1) / verScrollBar.getHeight()));
-
-        cerr<<"ratio "<<widthratio<<" "<<heightratio<<endl;
-        cerr<<horScrollBar.getWidth()<<" "<<verScrollBar.getHeight()<<endl;
-        cerr<<workingObject.getWidth()<<" "<<workingObject.getHeight()<<endl;
-        cerr<<workspace.getWidth()<<" "<<workspace.getHeight()<<endl;
+        verScrollBar.selfStretchY(0, 0, heightratio * (1.0f*verticalscroll.getHeight() / (verScrollBar.getHeight() - 1)));
 
         reposScrollBar();
     }
 
     void reposScrollBar(){
-        if(widthratio > 1){
-            horScrollBar.getRefPos().setX(max(0.0f, (-workingObject.getConstRefPos().getX()) / ((workingObject.getWidth()-1) - workspace.getWidth()) *(horizontalscroll.getWidth() - (horScrollBar.getWidth() - 1))));
-        }
-        if(heightratio > 1){
-            verScrollBar.getRefPos().setY(max(0.0f, (-workingObject.getConstRefPos().getY()) / ((workingObject.getHeight()-1) - workspace.getHeight()) *(verticalscroll.getHeight() - (verScrollBar.getHeight() - 1))));
-        }
+        float widthTotal = max(0.0f, -workingObject.getConstRefPos().getX()) + (workspace.getWidth())
+                           + max(0.0f, workingObject.getConstRefPos().getX() + workingObject.getLowerRight().getX()
+                                       - (workspace.getConstRefBox().getXMax()));
+        float leftOffset = max(0.0f, -workingObject.getConstRefPos().getX());
+        float heightTotal = max(0.0f, -workingObject.getConstRefPos().getY()) + (workspace.getHeight())
+                            + max(0.0f, workingObject.getConstRefPos().getY() + workingObject.getLowerRight().getY()
+                                        - (workspace.getConstRefBox().getYMax()));
+        float topOffset = max(0.0f, -workingObject.getConstRefPos().getY());
+        horScrollBar.getRefPos().setX(leftOffset / widthTotal * (horizontalscroll.getWidth()));
+        verScrollBar.getRefPos().setY(topOffset / heightTotal * (verticalscroll.getHeight()));
     }
 
     void processClick(){
-        // TODO: Process Click
+        while(!mouseInput.empty()){
+            MouseInputData mouseClick = mouseInput.front();
+            mouseInput.pop();
+
+            if(isLeftClick(mouseClick)){
+                if(mouseInsideToolbar(mouseClick) && mouseInsideToolbox(mouseClick)){
+                    int buttonIdx = getButtonIdx(mouseClick);
+                    if(buttonUndefined(buttonIdx) || !isButtonClicked(mouseClick, buttonIdx)){
+                        continue;
+                    }
+
+                    runButtonFunction(buttonIdx);
+                    break;
+                }
+
+                else if(mouseInsideWorkspace(mouseClick)){
+                    if(state == AppState::CREATE_SHAPE){
+                        drawFreeShape(mouseClick);
+                    }
+                    else{
+                        setFocusOnObject(mouseClick);
+                    }
+                    break;
+                }
+            }
+
+            else if(isRightClick(mouseClick)){
+                if(state == AppState::CREATE_SHAPE){
+                    quitCreateShape(tempPlane);
+                    break;
+                }
+            }
+        }
     }
+
+    int getButtonIdx(const MouseInputData &mouseClick){
+        return (int) mouseClick.position.getX() / toolbarButtonSize;
+    }
+
+    bool buttonUndefined(int buttonIdx){
+        return buttonIdx >= tools.size();
+    }
+
+    bool isLeftClick(const MouseInputData &mouseClick){
+        return mouseClick.buttonType == MouseButtonType::LEFT_BUTTON;
+    }
+
+    bool isRightClick(const MouseInputData &mouseClick){
+        return mouseClick.buttonType == MouseButtonType::RIGHT_BUTTON;
+    }
+
+    bool mouseInsideToolbar(const MouseInputData &mouseClick){
+        return toolbar.isInside(mouseClick.position);
+    }
+
+    bool mouseInsideToolbox(const MouseInputData &mouseClick){
+        return mouseClick.position.getY() >= 2 && mouseClick.position.getY() < 38;
+    }
+
+    bool isButtonClicked(const MouseInputData &mouseClick, int buttonIdx){
+        return (mouseClick.position.getX() >= buttonIdx * toolbarButtonSize + 2 &&
+                mouseClick.position.getX() < (buttonIdx + 1) * toolbarButtonSize - 2);
+    }
+
+    bool mouseInsideWorkspace(MouseInputData mouseClick){
+        return workspace.isInside(
+            mouseClick.position.getX() - workspace.getRefPos().getX(),
+            mouseClick.position.getY() - workspace.getRefPos().getY());
+    }
+
+    void setFocusOnObject(const MouseInputData &mouseClick){
+        float x = mouseClick.position.getX() - workspace.getConstRefPos().getX() - workingObject.getConstRefPos().getX();
+        float y = mouseClick.position.getY() - workspace.getConstRefPos().getY() - workingObject.getConstRefPos().getY();
+
+        focusedObjectIndex = -1;
+
+        for(int i=0; i<workingObject.getConstRefPlanes().size(); ++i){
+            const MoveablePlane &plane = workingObject.getConstRefPlanes()[i];
+            if(x >= plane.getConstRefPos().getX() && x < plane.getConstRefPos().getX() + plane.getLowerRight().getX() &&
+                y >= plane.getConstRefPos().getY() && y < plane.getConstRefPos().getY() + plane.getLowerRight().getY()){
+                focusedObjectIndex = i;
+                break;
+            }
+        }
+    }
+
+    void runButtonFunction(int buttonIdx){
+        switch (buttonIdx){
+
+            // TODO : implement the function caller ?
+            case 0:
+                newWorkSpace();
+                break;
+            case 1:
+                loadFile();
+                break;
+            case 2:
+                saveFile();
+                break;
+            case 3:
+                zoomIn();
+                break;
+            case 4:
+                zoomOut();
+                break;
+            case 5:
+                panLeft();
+                break;
+            case 6:
+                panTop();
+                break;
+            case 7:
+                panBottom();
+                break;
+            case 8:
+                panRight();
+                break;
+            case 9:
+                rotateCCW();
+                break;
+            case 10:
+                rotateCW();
+                break;
+            case 11:
+                pickColor();
+                break;
+            case 12:
+                fillColor();
+                break;
+            case 13:
+                createTriangle();
+                break;
+            case 14:
+                createRectangle();
+                break;
+            case 15:
+                createShape();
+                break;
+            case 16:
+                exit);
+                break;
+        }
+    }
+
 
     void adjustZoom(){
         if(zoom != 0){
@@ -200,8 +374,8 @@ private:
             else{
                 if(zoomratio > 1.0f/20){
                     zoomratio /= constFactor;
-                    workingObject.selfDilate(workspace.getWidth() / 2, workspace.getHeight() / 2, 1/constFactor);
                     ++zoom;
+                    workingObject.selfDilate(workspace.getWidth() / 2, workspace.getHeight() / 2, 1/constFactor);
                     resizeScrollBar();
                 }
                 else{
@@ -217,6 +391,7 @@ private:
                 if(workingObject.getConstRefPos().getX() < 0){
                     workingObject.getRefPos().setX(min(workingObject.getConstRefPos().getX() + speed, 0.0f));
                     --moveHor;
+                    resizeScrollBar();
                 }
                 else{
                     moveHor = 0;
@@ -226,6 +401,7 @@ private:
                 if(workingObject.getConstRefPos().getX() + workingObject.getLowerRight().getX() >= workspace.getConstRefBox().getXMax()){
                     workingObject.getRefPos().setX(max(workingObject.getConstRefPos().getX() - speed, (float)min(workspace.getWidth() - workingObject.getWidth(), 0)));
                     ++moveHor;
+                    resizeScrollBar();
                 }
                 else{
                     moveHor = 0;
@@ -237,6 +413,7 @@ private:
                 if(workingObject.getConstRefPos().getY() < 0){
                     workingObject.getRefPos().setY(min(workingObject.getConstRefPos().getY() + speed, 0.0f));
                     --moveVer;
+                    resizeScrollBar();
                 }
                 else{
                     moveVer = 0;
@@ -246,13 +423,13 @@ private:
                 if(workingObject.getConstRefPos().getY() + workingObject.getLowerRight().getY() >= workspace.getConstRefBox().getYMax()){
                     workingObject.getRefPos().setY(max(workingObject.getConstRefPos().getY() - speed, (float)min(workspace.getHeight() - workingObject.getHeight(), 0)));
                     ++moveVer;
+                    resizeScrollBar();
                 }
                 else{
                     moveVer = 0;
                 }
             }
         }
-        reposScrollBar();
     }
 
     void newWorkSpace(){
@@ -277,20 +454,16 @@ private:
         --zoom;
     }
 
-    void FillColor(){
+    void pickColor(){
+        // TODO: Pick Color From STDIN
+    }
+
+    void fillColor(){
         // TODO: Fill Shape Color
     }
 
     void createShape(){
-        // TODO: Create Shape
-    }
-
-    void createRectangle(){
-        // TODO: Create Rectangle
-    }
-
-    void createTriangle(){
-        // TODO: Create Triangle
+        state = AppState::CREATE_SHAPE;
     }
 
     void rotateCW(){
@@ -301,12 +474,8 @@ private:
         // TODO: Rotate Counter ClockWise 90
     }
 
-    void Exit(){
+    void exit(){
         // TODO: EXIT
-    }
-
-    void pickColor(){
-        // TODO: Make Color Picker
     }
 
     void panLeft(){
@@ -323,6 +492,55 @@ private:
 
     void panBottom(){
         --moveVer;
+    }
+
+    void drawFreeShape(MouseInputData mouseClick){
+
+        int drawPositionX = mouseClick.position.getX();
+        int drawPositionY = mouseClick.position.getY();
+
+        vector<Line> &lines = tempPlane.getRefLines();
+        Pixel currPixel = Pixel(drawPositionX, drawPositionY, currentColor);
+
+        if(lines.empty()){
+            lines.push_back(Line(currPixel, currPixel));
+        }
+        else{
+            Pixel endPixel = lines.back().getRefEndPixel();
+            Pixel startPixel = lines.back().getRefStartPixel();
+            lines.pop_back();
+            lines.push_back(Line(startPixel, currPixel));
+            lines.push_back(Line(currPixel, endPixel));
+        }
+    }
+
+    void quitCreateShape(MoveablePlane tempPlane){
+        if(!tempPlane.getConstRefLines().empty()){
+            workingShapes->insert(workingShapes->begin(), tempPlane);
+            tempPlane.getRefLines().clear();
+            tempPlane.setPos(0, 0);
+        }
+        state = AppState::NORMAL;
+    }
+
+    void createRectangle(MouseInputData mouseClick){
+        int drawPositionX = mouseClick.position.getX() - workspace.getConstRefPos().getX() - 25;
+        int drawPositionY = mouseClick.position.getY() - workspace.getConstRefPos().getY() - 25;
+
+        MoveableObject tempRectangle = Object(drawPositionX, drawPositionY, "Asset/Shapes/square.txt", currentColor);
+        for(MoveablePlane plane : tempRectangle.getPlanes()){
+            workingObject.addPlane(plane);
+        }
+    }
+
+    void createTriangle(MouseInputData mouseClick){
+        int drawPositionX = mouseClick.position.getX() - workspace.getConstRefPos().getX() - 25;
+        int drawPositionY = mouseClick.position.getY() - workspace.getConstRefPos().getY() - 9;
+
+        MoveableObject tempTriangle = Object(drawPositionX, drawPositionY, "Asset/Shapes/triangle.txt", currentColor);
+        for(MoveablePlane plane : tempTriangle.getPlanes()){
+            workingObject.addPlane(plane);
+        }
     }
 };
 

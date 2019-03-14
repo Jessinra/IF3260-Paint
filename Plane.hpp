@@ -20,6 +20,7 @@ class Plane
     int priority;
 
   public:
+    Plane();
     Plane(const vector<Line> &lines, unsigned int color, int priority);
     Plane(const Point &pos, const vector<Line> &lines, unsigned int color, int priority);
     Plane(const Point &pos, const Plane &ot);

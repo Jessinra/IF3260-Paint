@@ -546,9 +546,10 @@ private:
         string filename;
         ifstream fileDetail;
 
+        cout << "Masukkan nama file: ";
         cin >> filename;
 
-        workingObject = Object(0, 0, "Save/" + filename + "_detail.txt");
+        workingObject = Object(0, 0, filename + ".txt");
         drawSolidObject(workspace, workingObject);
     }
 
@@ -556,10 +557,11 @@ private:
         string filename;
         ofstream fileDetail;
         
+        cout << "Masukkan nama file: ";
         cin >> filename;
         
 
-        fileDetail.open("Save/" + filename + "_detail.txt", ios::out);
+        fileDetail.open(filename + ".txt", ios::out);
 
         workingObject.writeToFile(fileDetail);
     }
@@ -597,6 +599,7 @@ private:
     }
 
     void pickColor(){
+        cout << "Masukan warna dengan format hex: ";
         cin >> hex >> currentColor >> dec;
         tools[11].getRefPlanes()[0].setColor(currentColor);
         tempPlane.setColor(currentColor);

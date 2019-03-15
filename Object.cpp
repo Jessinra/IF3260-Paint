@@ -96,7 +96,8 @@ void Object::setPlanes(std::string filename){
 
 void Object::addPlane(MoveablePlane plane){
     plane.setPos(plane.getConstRefPos().getX() - position.getX(), plane.getConstRefPos().getY() - position.getY());
-    this->planes.push_back(plane);
+    plane.setPriority(planes.empty() ? 0 : planes[0].getPriority() - 1);
+    planes.insert(planes.begin(), plane);
 }
 
 

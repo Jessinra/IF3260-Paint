@@ -363,11 +363,11 @@ private:
                     }
                     else if(state == AppState::CREATE_RECTANGLE){
                         drawRectangle(mouseClick);
-                        quitCreateShape();
+//                        exitDrawState();
                     }
                     else if(state == AppState::CREATE_TRIANGLE){
                         drawTriangle(mouseClick);
-                        quitCreateShape();
+//                        exitDrawState();
                     }
                     else{
                         setFocusOnObject(mouseClick);
@@ -667,7 +667,7 @@ private:
 
     void quitCreateShape(){
         if(!tempPlane.getConstRefLines().empty()){
-            workingShapes->insert(workingShapes->begin(), tempPlane);
+            workingObject.addPlane(tempPlane);
             workingObject.calculate();
             tempPlane.getRefLines().clear();
             tempPlane.setPos(0, 0);
@@ -676,15 +676,15 @@ private:
     }
 
     void drawRectangle(const MouseInputData &mouseClick){
-        float drawPositionX = mouseClick.position.getX() - workingObject.getConstRefPos().getX() - workspace.getConstRefPos().getX() - 25;
-        float drawPositionY = mouseClick.position.getY() - workingObject.getConstRefPos().getY() - workspace.getConstRefPos().getY() - 25;
+        float drawPositionX = mouseClick.position.getX() - workspace.getConstRefPos().getX() - 25;
+        float drawPositionY = mouseClick.position.getY() - workspace.getConstRefPos().getY() - 25;
 
         MoveableObject tempRectangle = Object(0, 0, "Asset/Shapes/square.txt", currentColor);
         for(MoveablePlane &plane : tempRectangle.getRefPlanes()){
             plane.setPos(drawPositionX, drawPositionY);
             plane.setColor(currentColor);
             plane.calculate();
-            workingShapes->push_back(plane);
+            workingObject.addPlane(plane);
         }
         workingObject.calculate();
     }
@@ -697,7 +697,8 @@ private:
         for(MoveablePlane &plane : tempTriangle.getRefPlanes()){
             plane.setPos(drawPositionX, drawPositionY);
             plane.setColor(currentColor);
-            workingShapes->push_back(plane);
+            plane.calculate();
+            workingObject.addPlane(plane);
         }
         workingObject.calculate();
     }

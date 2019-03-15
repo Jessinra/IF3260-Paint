@@ -95,7 +95,8 @@ void Object::setPlanes(std::string filename){
 }
 
 void Object::addPlane(MoveablePlane plane){
-    this->planes.emplace_back(plane);
+    plane.setPos(plane.getConstRefPos().getX() - position.getX(), plane.getConstRefPos().getY() - position.getY());
+    this->planes.push_back(plane);
 }
 
 

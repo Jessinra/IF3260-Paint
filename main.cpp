@@ -67,6 +67,9 @@ void *readinput(void *thread_id) {
                             ++speed;
                         }
                         break;
+                    case SDLK_RETURN:
+                        mouseInput.push(MouseInputData(MouseButtonType::RIGHT_BUTTON, 0, 0));
+                        break;
                 }
                 break;
 
@@ -145,27 +148,27 @@ public:
         workingObject = Object(0, 0, "Asset/object_building.txt");
         workingShapes = &workingObject.getRefPlanes();
 
-        tools.push_back(Object(0, 0, "Asset/icon_new.txt"));
-        tools.push_back(Object(40, 0, "Asset/icon_load.txt"));
-        tools.push_back(Object(80, 0, "Asset/icon_save.txt"));
-        tools.push_back(Object(120, 0, "Asset/icon_zoom_in.txt"));
-        tools.push_back(Object(160, 0, "Asset/icon_zoom_out.txt"));
-        tools.push_back(Object(200, 0, "Asset/icon_pan_left.txt"));
-        tools.push_back(Object(240, 0, "Asset/icon_pan_up.txt"));
-        tools.push_back(Object(280, 0, "Asset/icon_pan_down.txt"));
-        tools.push_back(Object(320, 0, "Asset/icon_pan_right.txt"));
-        tools.push_back(Object(360, 0, "Asset/icon_rotate_ccw.txt"));
-        tools.push_back(Object(400, 0, "Asset/icon_rotate_cw.txt"));
+        tools.push_back(Object(2, 2, "Asset/icon_new.txt"));
+        tools.push_back(Object(42, 2, "Asset/icon_load.txt"));
+        tools.push_back(Object(82, 2, "Asset/icon_save.txt"));
+        tools.push_back(Object(122, 2, "Asset/icon_zoom_in.txt"));
+        tools.push_back(Object(162, 2, "Asset/icon_zoom_out.txt"));
+        tools.push_back(Object(202, 2, "Asset/icon_pan_left.txt"));
+        tools.push_back(Object(242, 2, "Asset/icon_pan_up.txt"));
+        tools.push_back(Object(282, 2, "Asset/icon_pan_down.txt"));
+        tools.push_back(Object(322, 2, "Asset/icon_pan_right.txt"));
+        tools.push_back(Object(362, 2, "Asset/icon_rotate_ccw.txt"));
+        tools.push_back(Object(402, 2, "Asset/icon_rotate_cw.txt"));
         // here pick color
-        tools.push_back(Object(440, 0, "Asset/icon_fill_color.txt"));
-        tools.push_back(Object(480, 0, "Asset/icon_fill_color.txt"));
-        tools.push_back(Object(520, 0, "Asset/icon_shape_triangle.txt"));
-        tools.push_back(Object(560, 0, "Asset/icon_shape_square.txt"));
-        tools.push_back(Object(600, 0, "Asset/icon_shape.txt"));
-        tools.push_back(Object(640, 0, "Asset/icon_scale_up.txt"));
-        tools.push_back(Object(680, 0, "Asset/icon_scale_down.txt"));
-        tools.push_back(Object(720, 0, "Asset/icon_trash.txt"));
-        tools.push_back(Object(760, 0, "Asset/icon_exit.txt"));
+        tools.push_back(Object(442, 2, "Asset/icon_fill_color.txt"));
+        tools.push_back(Object(482, 2, "Asset/icon_fill_color.txt"));
+        tools.push_back(Object(522, 2, "Asset/icon_shape_triangle.txt"));
+        tools.push_back(Object(562, 2, "Asset/icon_shape_square.txt"));
+        tools.push_back(Object(602, 2, "Asset/icon_shape.txt"));
+        tools.push_back(Object(642, 2, "Asset/icon_scale_up.txt"));
+        tools.push_back(Object(682, 2, "Asset/icon_scale_down.txt"));
+        tools.push_back(Object(722, 2, "Asset/icon_trash.txt"));
+        tools.push_back(Object(762, 2, "Asset/icon_exit.txt"));
 
         resizeScrollBar();
     }
@@ -194,7 +197,7 @@ private:
         zoomratio = 1;
         state = AppState::NORMAL;
         focusedObjectIndex = -1;
-        currentColor = 0x1000000;
+        currentColor = 0xff0000;
         tempPlane.setColor(currentColor);
     }
 
@@ -211,6 +214,7 @@ private:
         drawSolidObject(horizontalscroll, horScrollBar);
         drawSolidObject(horizontalscroll, backgroundHorScroll);
 
+        drawPlane(workspace, 0, 0, tempPlane);
         drawSolidPlane(workspace, 0, 0, tempPlane);
         drawSolidObject(workspace, workingObject);
 
@@ -359,9 +363,11 @@ private:
                     }
                     else if(state == AppState::CREATE_RECTANGLE){
                         drawRectangle(mouseClick);
+                        quitCreateShape();
                     }
                     else if(state == AppState::CREATE_TRIANGLE){
                         drawTriangle(mouseClick);
+                        quitCreateShape();
                     }
                     else{
                         setFocusOnObject(mouseClick);
@@ -632,11 +638,13 @@ private:
     }
 
     void scaleUp(){
+        if(focusedObjectIndex == -1) return;
         (*workingShapes)[focusedObjectIndex].selfDilate(workspace.getWidth() / 2, workspace.getHeight() / 2, constFactor);
         workingObject.calculate();
     }
 
     void scaleDown(){
+        if(focusedObjectIndex == -1) return;
         (*workingShapes)[focusedObjectIndex].selfDilate(workspace.getWidth() / 2, workspace.getHeight() / 2, 1/constFactor);
         workingObject.calculate();
     }
@@ -647,8 +655,8 @@ private:
 
     void drawFreeShape(MouseInputData mouseClick){
 
-        int drawPositionX = mouseClick.position.getX();
-        int drawPositionY = mouseClick.position.getY();
+        int drawPositionX = mouseClick.position.getX() - workspace.getConstRefPos().getX();
+        int drawPositionY = mouseClick.position.getY() - workspace.getConstRefPos().getY();
 
         vector<Line> &lines = tempPlane.getRefLines();
         Pixel currPixel = Pixel(drawPositionX, drawPositionY, currentColor);
@@ -676,23 +684,30 @@ private:
     }
 
     void drawRectangle(const MouseInputData &mouseClick){
-        int drawPositionX = mouseClick.position.getX() - workspace.getConstRefPos().getX() - 25;
-        int drawPositionY = mouseClick.position.getY() - workspace.getConstRefPos().getY() - 25;
+        float drawPositionX = mouseClick.position.getX() - workingObject.getConstRefPos().getX() - workspace.getConstRefPos().getX() - 25;
+        float drawPositionY = mouseClick.position.getY() - workingObject.getConstRefPos().getY() - workspace.getConstRefPos().getY() - 25;
 
-        MoveableObject tempRectangle = Object(drawPositionX, drawPositionY, "Asset/Shapes/square.txt", currentColor);
-        for(const MoveablePlane &plane : tempRectangle.getPlanes()){
-            workingObject.addPlane(plane);
+        MoveableObject tempRectangle = Object(0, 0, "Asset/Shapes/square.txt", currentColor);
+        for(MoveablePlane &plane : tempRectangle.getRefPlanes()){
+            plane.setPos(drawPositionX, drawPositionY);
+            plane.setColor(currentColor);
+            plane.calculate();
+            workingShapes->push_back(plane);
         }
+        workingObject.calculate();
     }
 
     void drawTriangle(const MouseInputData &mouseClick){
-        int drawPositionX = mouseClick.position.getX() - workspace.getConstRefPos().getX() - 25;
-        int drawPositionY = mouseClick.position.getY() - workspace.getConstRefPos().getY() - 9;
+        float drawPositionX = mouseClick.position.getX() - workspace.getConstRefPos().getX() - 25;
+        float drawPositionY = mouseClick.position.getY() - workspace.getConstRefPos().getY() - 9;
 
-        MoveableObject tempTriangle = Object(drawPositionX, drawPositionY, "Asset/Shapes/triangle.txt", currentColor);
-        for(const MoveablePlane &plane : tempTriangle.getPlanes()){
-            workingObject.addPlane(plane);
+        MoveableObject tempTriangle = Object(0, 0, "Asset/Shapes/triangle.txt", currentColor);
+        for(MoveablePlane &plane : tempTriangle.getRefPlanes()){
+            plane.setPos(drawPositionX, drawPositionY);
+            plane.setColor(currentColor);
+            workingShapes->push_back(plane);
         }
+        workingObject.calculate();
     }
 };
 

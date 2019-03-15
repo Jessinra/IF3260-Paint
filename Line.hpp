@@ -26,8 +26,10 @@ class Line
     Pixel getEndPixel() const;
     unsigned int getStartColor() const;
     unsigned int getEndColor() const;
-    const Pixel &getRefStartPixel() const;
-    const Pixel &getRefEndPixel() const;
+    Pixel &getRefStartPixel();
+    Pixel &getRefEndPixel();
+    const Pixel &getConstRefStartPixel() const;
+    const Pixel &getConstRefEndPixel() const;
 
     void writeToFile(ofstream &fileOutput);
 };

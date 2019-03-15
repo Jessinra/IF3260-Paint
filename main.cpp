@@ -605,6 +605,9 @@ private:
     void fillColor(){
         MoveablePlane &plane = (*workingShapes)[focusedObjectIndex];
         plane.setColor(currentColor);
+        for(Line &line : plane.getRefLines()){
+            line.getRefStartPixel().setColor(currentColor);
+        }
     }
 
     void createTriangle(){
@@ -641,16 +644,16 @@ private:
     void scaleUp(){
         if(focusedObjectIndex == -1) return;
         MoveablePlane &plane = (*workingShapes)[focusedObjectIndex];
-        plane.selfDilate(workingObject.getConstRefPos().getX() + plane.getConstRefPos().getX() + plane.getWidth() / 2,
-                         workingObject.getConstRefPos().getY() + plane.getConstRefPos().getY() + plane.getHeight() / 2, constFactor);
+        plane.selfDilate(plane.getConstRefPos().getX() + plane.getWidth() / 2,
+                         plane.getConstRefPos().getY() + plane.getHeight() / 2, constFactor);
         workingObject.calculate();
     }
 
     void scaleDown(){
         if(focusedObjectIndex == -1) return;
         MoveablePlane &plane = (*workingShapes)[focusedObjectIndex];
-        plane.selfDilate(workingObject.getConstRefPos().getX() + plane.getConstRefPos().getX() + plane.getWidth() / 2,
-                         workingObject.getConstRefPos().getY() + plane.getConstRefPos().getY() + plane.getHeight() / 2, 1/constFactor);
+        plane.selfDilate(plane.getConstRefPos().getX() + plane.getWidth() / 2,
+                         plane.getConstRefPos().getY() + plane.getHeight() / 2, 1/constFactor);
         workingObject.calculate();
     }
 

@@ -80,10 +80,10 @@ bool View::isInside(int offsetx, int offsety, const Plane &plane) const{
 }
 
 bool View::isInside(int offsetx, int offsety, const Line &line) const{
-    int minX = min(line.getRefStartPixel().getX(), line.getRefEndPixel().getX());
-    int maxX = max(line.getRefStartPixel().getX(), line.getRefEndPixel().getX());
-    int minY = min(line.getRefStartPixel().getY(), line.getRefEndPixel().getY());
-    int maxY = max(line.getRefStartPixel().getY(), line.getRefEndPixel().getY());
+    int minX = min(line.getConstRefStartPixel().getX(), line.getConstRefEndPixel().getX());
+    int maxX = max(line.getConstRefStartPixel().getX(), line.getConstRefEndPixel().getX());
+    int minY = min(line.getConstRefStartPixel().getY(), line.getConstRefEndPixel().getY());
+    int maxY = max(line.getConstRefStartPixel().getY(), line.getConstRefEndPixel().getY());
     return !(offsetx + minX >= viewbox.getXMax() || offsetx +maxX < viewbox.getXMin() ||
              offsety + minY >= viewbox.getYMax() || offsety + maxY < viewbox.getYMin());
 }

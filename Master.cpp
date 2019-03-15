@@ -140,10 +140,10 @@ void Master::drawLine(int positionX, int positionY, const Line &line) {
     // Bresenham's line algorithm with gradient coloring
 
     // Position section
-    int xStart = line.getStartPixel().getX() + positionX;
-    int yStart = line.getStartPixel().getY() + positionY;
-    int xEnd = line.getEndPixel().getX() + positionX;
-    int yEnd = line.getEndPixel().getY() + positionY;
+    int xStart = line.getConstRefStartPixel().getX() + positionX;
+    int yStart = line.getConstRefStartPixel().getY() + positionY;
+    int xEnd = line.getConstRefEndPixel().getX() + positionX;
+    int yEnd = line.getConstRefEndPixel().getY() + positionY;
 
     if(max(xStart, xEnd) < 0 || min(xStart, xEnd) >= xend)
         return;
@@ -151,8 +151,8 @@ void Master::drawLine(int positionX, int positionY, const Line &line) {
         return;
 
     // Color section
-    int colorStart = line.getStartPixel().getColor();
-    int colorEnd = line.getEndPixel().getColor();
+    int colorStart = line.getConstRefStartPixel().getColor();
+    int colorEnd = line.getConstRefEndPixel().getColor();
 
     // Setup Const
     const float deltaX = xEnd - xStart;
@@ -266,14 +266,14 @@ void Master::drawLine(const View &view, int positionX, int positionY, const Line
     // Bresenham's line algorithm with gradient coloring
 
     // Position section
-    int xStart = line.getStartPixel().getX() + positionX;
-    int yStart = line.getStartPixel().getY() + positionY;
-    int xEnd = line.getEndPixel().getX() + positionX;
-    int yEnd = line.getEndPixel().getY() + positionY;
+    int xStart = line.getConstRefStartPixel().getX() + positionX;
+    int yStart = line.getConstRefStartPixel().getY() + positionY;
+    int xEnd = line.getConstRefEndPixel().getX() + positionX;
+    int yEnd = line.getConstRefEndPixel().getY() + positionY;
 
     // Color section
-    int colorStart = line.getStartPixel().getColor();
-    int colorEnd = line.getEndPixel().getColor();
+    int colorStart = line.getConstRefStartPixel().getColor();
+    int colorEnd = line.getConstRefEndPixel().getColor();
 
     // Setup Const
     const float deltaX = xEnd - xStart;

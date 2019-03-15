@@ -36,12 +36,12 @@ unsigned int Line::getEndColor() const
     return this->endPixel.getColor();
 }
 
-const Pixel &Line::getRefStartPixel() const
+const Pixel &Line::getConstRefStartPixel() const
 {
     return this->startPixel;
 }
 
-const Pixel &Line::getRefEndPixel() const
+const Pixel &Line::getConstRefEndPixel() const
 {
     return this->endPixel;
 }
@@ -53,4 +53,12 @@ void Line::writeToFile(ofstream &fileOutput) {
     fileOutput << setfill('0') << setw(3) << this->endPixel.getX() << " ";
     fileOutput << setfill('0') << setw(3) << this->endPixel.getY() << " ";
     fileOutput << "0x" << hex << this->endPixel.getColor() << "\n";
+}
+
+Pixel &Line::getRefStartPixel() {
+    return startPixel;
+}
+
+Pixel &Line::getRefEndPixel() {
+    return endPixel;
 }

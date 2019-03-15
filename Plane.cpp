@@ -161,7 +161,7 @@ Plane::Plane() {
 
 void Plane::writeToFile(ofstream &fileOutput) {
     fileOutput << dec << this->lines.size() << " ";
-    fileOutput << "0x" << hex << this->getColor() << " ";
+    fileOutput << "0x" << hex << this->getColor() << " " << dec;
     fileOutput << this->getPriority() << " ";
     fileOutput << setfill('0') << setw(3) << this->getPos().getX() << " ";
     fileOutput << setfill('0') << setw(3) << this->getPos().getY() << "\n";

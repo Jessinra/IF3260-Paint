@@ -160,7 +160,7 @@ public:
         tools.push_back(Object(362, 2, "Asset/icon_rotate_ccw.txt"));
         tools.push_back(Object(402, 2, "Asset/icon_rotate_cw.txt"));
         // here pick color
-        tools.push_back(Object(442, 2, "Asset/icon_fill_color.txt"));
+        tools.push_back(Object(442, 2, "Asset/icon_pick_color.txt"));
         tools.push_back(Object(482, 2, "Asset/icon_fill_color.txt"));
         tools.push_back(Object(522, 2, "Asset/icon_shape_triangle.txt"));
         tools.push_back(Object(562, 2, "Asset/icon_shape_square.txt"));
@@ -622,6 +622,7 @@ private:
         else if(focusedObjectIndex != -1){
             workingShapes->erase(workingShapes->begin() + focusedObjectIndex);
             workingObject.calculate();
+            focusedObjectIndex = -1;
         }
     }
 

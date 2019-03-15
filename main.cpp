@@ -543,6 +543,7 @@ private:
         cin >> filename;
 
         workingObject = Object(0, 0, "Save/" + filename + "_detail.txt");
+        drawSolidObject(workspace, workingObject);
     }
 
     void saveFile(){

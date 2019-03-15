@@ -213,8 +213,8 @@ private:
         drawSolidObject(horizontalscroll, horScrollBar);
         drawSolidObject(horizontalscroll, backgroundHorScroll);
 
-        drawPlane(workspace, 0, 0, tempPlane);
-        drawSolidPlane(workspace, 0, 0, tempPlane);
+        drawPlane(workspace, tempPlane.getConstRefPos().getX(), tempPlane.getConstRefPos().getY(), tempPlane);
+        drawSolidPlane(workspace, tempPlane.getConstRefPos().getX(), tempPlane.getConstRefPos().getY(), tempPlane);
         drawSolidObject(workspace, workingObject);
 
         flush();
@@ -344,7 +344,7 @@ private:
             mouseInput.pop();
 
             if(isLeftClick(mouseClick)){
-                cerr<<"mouse coordinate "<<mouseClick.position.getX()<<" "<<mouseClick.position.getY()<<endl;
+//                cerr<<"mouse coordinate "<<mouseClick.position.getX()<<" "<<mouseClick.position.getY()<<endl;
                 if(mouseInsideToolbar(mouseClick) && mouseInsideToolbox(mouseClick)){
                     int buttonIdx = getClickedButtonIdx(mouseClick);
                     
@@ -650,8 +650,8 @@ private:
 
     void drawFreeShape(MouseInputData mouseClick){
 
-        int drawPositionX = mouseClick.position.getX() - workspace.getConstRefPos().getX();
-        int drawPositionY = mouseClick.position.getY() - workspace.getConstRefPos().getY();
+        int drawPositionX = mouseClick.position.getX() - workspace.getConstRefPos().getX() - tempPlane.getConstRefPos().getX();
+        int drawPositionY = mouseClick.position.getY() - workspace.getConstRefPos().getY() - tempPlane.getConstRefPos().getY();
 
         vector<Line> &lines = tempPlane.getRefLines();
         Pixel currPixel = Pixel(drawPositionX, drawPositionY, currentColor);
@@ -666,6 +666,7 @@ private:
             lines.push_back(Line(startPixel, currPixel));
             lines.push_back(Line(currPixel, endPixel));
         }
+        tempPlane.calculate();
     }
 
     void quitCreateShape(){

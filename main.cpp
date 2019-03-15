@@ -634,6 +634,7 @@ private:
         else if(state == AppState::CREATE_SHAPE){
             tempPlane.getRefLines().clear();
             tempPlane.setPos(0, 0);
+            state = AppState::NORMAL;
         }
         else if(focusedObjectIndex != -1){
             workingShapes->erase(workingShapes->begin() + focusedObjectIndex);

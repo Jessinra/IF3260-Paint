@@ -539,31 +539,23 @@ private:
 
     void loadFile(){
         string filename;
-        ifstream filePosition;
         ifstream fileDetail;
-        int positionX;
-        int positionY;
 
         cin >> filename;
 
-        filePosition.open("Save/" + filename + "_position.txt");
-
-        filePosition >> dec >> positionX >> positionY;
-        workingObject = Object(positionX, positionY, "Save/" + filename + "_detail.txt");
+        workingObject = Object(0, 0, "Save/" + filename + "_detail.txt");
     }
 
     void saveFile(){
         string filename;
         ofstream fileDetail;
-        ofstream filePosition;
         
         cin >> filename;
         
 
-        filePosition.open("Save/" + filename + "_position.txt", ios::out);
         fileDetail.open("Save/" + filename + "_detail.txt", ios::out);
 
-        workingObject.writeToFile(filePosition, fileDetail);
+        workingObject.writeToFile(fileDetail);
     }
 
     void zoomIn(){

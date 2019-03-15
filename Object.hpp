@@ -55,7 +55,7 @@ class Object
     void reverseHorizontal(); // TODO
     bool outOfWindow(int height, int width) const;
 
-    void writeToFile(ofstream &filePosition, ofstream &fileDetail);
+    void writeToFile(ofstream &fileDetail);
 };
 
 #endif

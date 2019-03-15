@@ -159,7 +159,6 @@ public:
         tools.push_back(Object(322, 2, "Asset/icon_pan_right.txt"));
         tools.push_back(Object(362, 2, "Asset/icon_rotate_ccw.txt"));
         tools.push_back(Object(402, 2, "Asset/icon_rotate_cw.txt"));
-        // here pick color
         tools.push_back(Object(442, 2, "Asset/icon_pick_color.txt"));
         tools.push_back(Object(482, 2, "Asset/icon_fill_color.txt"));
         tools.push_back(Object(522, 2, "Asset/icon_shape_triangle.txt"));
@@ -591,7 +590,9 @@ private:
     }
 
     void pickColor(){
-        // TODO: Pick Color From STDIN
+        cin >> hex >> currentColor;
+        tools[11].getRefPlanes()[0].setColor(currentColor);
+        drawSolidObject(toolbar, tools[11]);
     }
 
     void fillColor(){

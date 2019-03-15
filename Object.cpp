@@ -89,7 +89,7 @@ void Object::setPlanes(std::string filename){
             lines.push_back(line);
         }
 
-        addPlane(MoveablePlane(offsetX, offsetY, lines, planeColor, priority));
+        planes.push_back(MoveablePlane(offsetX, offsetY, lines, planeColor, priority));
     }
     inFile.close();
 }

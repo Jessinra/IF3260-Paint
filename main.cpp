@@ -454,11 +454,15 @@ private:
                 break;
             case 1:
                 cerr<<"LOAD"<<endl;
+                SDL_HideWindow(window);
                 loadFile();
+                SDL_ShowWindow(window);
                 break;
             case 2:
                 cerr<<"SAVE"<<endl;
+                SDL_HideWindow(window);
                 saveFile();
+                SDL_ShowWindow(window);
                 break;
             case 3:
                 cerr<<"ZOOM IN"<<endl;
@@ -494,7 +498,9 @@ private:
                 break;
             case 11:
                 cerr<<"PICK COLOR"<<endl;
+                SDL_HideWindow(window);
                 pickColor();
+                SDL_ShowWindow(window);
                 break;
             case 12:
                 cerr<<"FILL COLOR"<<endl;

@@ -57,7 +57,7 @@ void Object::setPlanes(std::string filename){
 
     int nLine;
     int priority;
-    int xStart, yStart, xEnd, yEnd;
+    float xStart, yStart, xEnd, yEnd;
     int planeColor;
     unsigned int colorStart, colorEnd;
     int offsetX, offsetY;
@@ -66,9 +66,9 @@ void Object::setPlanes(std::string filename){
     inFile >> nPlane;
     for (int i = 0; i < nPlane; ++i)
     {
-        inFile >> dec >> nLine;
-        inFile >> hex >> planeColor;
-        inFile >> dec >> priority;
+        inFile >> nLine;
+        inFile >> hex >> planeColor >> dec;
+        inFile >> priority;
         inFile >> offsetX;
         inFile >> offsetY;
 
@@ -76,12 +76,12 @@ void Object::setPlanes(std::string filename){
         for (int j = 0; j < nLine; ++j)
         {
 
-            inFile >> dec >> xStart;
+            inFile >> xStart;
             inFile >> yStart;
-            inFile >> hex >> colorStart;
-            inFile >> dec >> xEnd;
+            inFile >> hex >> colorStart >> dec;
+            inFile >> xEnd;
             inFile >> yEnd;
-            inFile >> hex >> colorEnd;
+            inFile >> hex >> colorEnd >> dec;
 
             Pixel startpx = Pixel(xStart, yStart, colorStart);
             Pixel endpx = Pixel(xEnd, yEnd, colorEnd);

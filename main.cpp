@@ -603,10 +603,12 @@ private:
     }
 
     void fillColor(){
+        if(focusedObjectIndex == -1) return;
         MoveablePlane &plane = (*workingShapes)[focusedObjectIndex];
         plane.setColor(currentColor);
         for(Line &line : plane.getRefLines()){
             line.getRefStartPixel().setColor(currentColor);
+            line.getRefEndPixel().setColor(currentColor);
         }
     }
 
@@ -700,6 +702,10 @@ private:
         for(MoveablePlane &plane : tempRectangle.getRefPlanes()){
             plane.setPos(drawPositionX, drawPositionY);
             plane.setColor(currentColor);
+            for(Line &line : plane.getRefLines()){
+                line.getRefStartPixel().setColor(currentColor);
+                line.getRefEndPixel().setColor(currentColor);
+            }
             plane.calculate();
             workingObject.addPlane(plane);
         }
@@ -714,6 +720,10 @@ private:
         for(MoveablePlane &plane : tempTriangle.getRefPlanes()){
             plane.setPos(drawPositionX, drawPositionY);
             plane.setColor(currentColor);
+            for(Line &line : plane.getRefLines()){
+                line.getRefStartPixel().setColor(currentColor);
+                line.getRefEndPixel().setColor(currentColor);
+            }
             plane.calculate();
             workingObject.addPlane(plane);
         }

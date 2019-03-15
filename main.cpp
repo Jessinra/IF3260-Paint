@@ -597,9 +597,9 @@ private:
     }
 
     void pickColor(){
-        cin >> hex >> currentColor;
+        cin >> hex >> currentColor >> dec;
         tools[11].getRefPlanes()[0].setColor(currentColor);
-        drawSolidObject(toolbar, tools[11]);
+        tempPlane.setColor(currentColor);
     }
 
     void fillColor(){
@@ -640,13 +640,17 @@ private:
 
     void scaleUp(){
         if(focusedObjectIndex == -1) return;
-        (*workingShapes)[focusedObjectIndex].selfDilate(workspace.getWidth() / 2, workspace.getHeight() / 2, constFactor);
+        MoveablePlane &plane = (*workingShapes)[focusedObjectIndex];
+        plane.selfDilate(workingObject.getConstRefPos().getX() + plane.getConstRefPos().getX() + plane.getWidth() / 2,
+                         workingObject.getConstRefPos().getY() + plane.getConstRefPos().getY() + plane.getHeight() / 2, constFactor);
         workingObject.calculate();
     }
 
     void scaleDown(){
         if(focusedObjectIndex == -1) return;
-        (*workingShapes)[focusedObjectIndex].selfDilate(workspace.getWidth() / 2, workspace.getHeight() / 2, 1/constFactor);
+        MoveablePlane &plane = (*workingShapes)[focusedObjectIndex];
+        plane.selfDilate(workingObject.getConstRefPos().getX() + plane.getConstRefPos().getX() + plane.getWidth() / 2,
+                         workingObject.getConstRefPos().getY() + plane.getConstRefPos().getY() + plane.getHeight() / 2, 1/constFactor);
         workingObject.calculate();
     }
 
